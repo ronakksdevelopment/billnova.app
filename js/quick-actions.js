@@ -149,34 +149,19 @@ const QuickActions = (() => {
   }
 
   /**
-   * Updates action labels/icons to reflect current Scanner state each time
-   * the sheet opens: the "Switch to Barcode/QR" label, the camera row's
-   * icon (eye / eye-slash), the flashlight row's icon/label, and whether
-   * "Re-enable Camera Access" needs to replace the normal camera toggle.
+   * Updates the sheet each time it opens: whether "Re-enable Camera Access"
+   * needs to replace the normal camera/flashlight rows (permission revoked),
+   * and whether the flashlight row should look disabled (camera off). Icons
+   * and titles for every row are static — nothing else changes dynamically.
    */
   function refreshLabels() {
     const cameraItem = sheetEl.querySelector('[data-quick-action="toggle-camera"]');
     const flashItem = sheetEl.querySelector('[data-quick-action="toggle-flashlight"]');
     const reenableItem = document.getElementById('quick-action-reenable-camera');
 
-    // "Toggle Scan Mode", "Toggle Camera", and "Toggle Flashlight" all keep
-    // static titles since each one switches both directions — only icons
-    // (camera/flashlight) update to reflect current state.
-
-    if (cameraItem && window.Scanner) {
-      const on = Scanner.isCameraOn();
-      cameraItem.querySelector('.quick-action-icon i').className =
-        on ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
-    }
-
+    // Flashlight needs the camera actively running to do anything useful.
     if (flashItem && window.Scanner) {
       const camOn = Scanner.isCameraOn && Scanner.isCameraOn();
-      const torchOn = Scanner.isTorchOn && Scanner.isTorchOn();
-      flashItem.querySelector('.quick-action-icon i').className =
-        torchOn ? 'fa-solid fa-bolt' : 'fa-solid fa-bolt-lightning';
-      // Title stays static "Toggle Flashlight" (it both turns on and off) —
-      // only the icon reflects current state, same pattern as the camera row.
-      // Flashlight needs the camera actively running to do anything useful.
       flashItem.classList.toggle('quick-action-item--disabled', !camOn);
     }
 
