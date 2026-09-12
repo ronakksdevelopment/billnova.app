@@ -67,17 +67,8 @@
   aspect-ratio: 2 / 1;
 }
 
-/* Single bold frame: a thick white border reads as one confident outline
-   rather than two competing thin strokes. A soft dark halo behind it and an
-   inset hairline give it depth instead of a flat, simple stroke look. */
-.scan-frame::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: calc(var(--radius-md) + 4px);
-  box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.18);
-}
-
+/* Single bold white frame — the only border. No outer halo/box-shadow ring,
+   so this is one clean frame rather than two nested outlines. */
 .scan-frame::after {
   content: '';
   position: absolute;
@@ -184,6 +175,10 @@
 
 .scanner-side-controls .icon-btn.on {
   background: var(--color-emerald);
+}
+
+.scanner-side-controls .icon-btn.off {
+  background: rgba(239, 68, 68, 0.85);
 }
 
 /* Bottom camera-switch bar */

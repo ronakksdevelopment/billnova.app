@@ -1,8 +1,9 @@
 /* ==========================================================================
    BillNova India: Live Scanner
    Opens instantly when the Billing screen loads, no start button and no
-   loading screens. Rear/front camera switch, flashlight, QR + Barcode
-   modes with an adaptive scan frame, and a duplicate-scan guard.
+   loading screens. Rear/front camera switch, flashlight, manual on/off
+   toggle, QR + Barcode modes with an adaptive scan frame, and a
+   duplicate-scan guard.
    ========================================================================== */
 
 const Scanner = (() => {
@@ -16,14 +17,15 @@ const Scanner = (() => {
   let isRunning = false;
   let isStarting = false;
   let isTorchOn = false;
+  let isManuallyDisabled = false; // true when the user turned the camera off via the eye button
   let currentMode = 'qr'; // 'qr' | 'barcode'
   let lastScannedCode = null;
   let lastScannedAt = 0;
   let onScanSuccessCallback = null;
 
   // Elements
-  let viewportEl, placeholderEl, topbarEl, overlayEl, flashlightBtn, cameraSwitchBtn;
-  let modeQrBtn, modeBarcodeBtn, successFlashEl, scanFrameEl;
+  let viewportEl, placeholderEl, topbarEl, overlayEl, flashlightBtn, cameraSwitchBtn, cameraToggleBtn;
+  let modeQrBtn, modeBarcodeBtn, successFlashEl, scanFrameEl, placeholderTextEl, placeholderIconEl;
 
   const QR_CONFIG = {
     fps: 12,
@@ -55,10 +57,13 @@ const Scanner = (() => {
   function cacheElements() {
     viewportEl = document.getElementById('scanner-viewport');
     placeholderEl = document.getElementById('scanner-placeholder');
+    placeholderIconEl = placeholderEl.querySelector('i');
+    placeholderTextEl = placeholderEl.querySelector('p');
     topbarEl = document.getElementById('scanner-topbar');
     overlayEl = document.getElementById('scanner-overlay');
     flashlightBtn = document.getElementById('flashlight-btn');
     cameraSwitchBtn = document.getElementById('camera-switch-btn');
+    cameraToggleBtn = document.getElementById('camera-toggle-btn');
     modeQrBtn = document.getElementById('mode-qr-btn');
     modeBarcodeBtn = document.getElementById('mode-barcode-btn');
     successFlashEl = document.getElementById('scan-success-flash');
@@ -76,6 +81,7 @@ const Scanner = (() => {
 
     flashlightBtn.addEventListener('click', toggleFlashlight);
     cameraSwitchBtn.addEventListener('click', switchCamera);
+    cameraToggleBtn.addEventListener('click', toggleCameraEnabled);
     modeQrBtn.addEventListener('click', () => switchMode('qr'));
     modeBarcodeBtn.addEventListener('click', () => switchMode('barcode'));
 
@@ -123,16 +129,54 @@ const Scanner = (() => {
     }
   }
 
-  function showPlaceholder() {
+  function showPlaceholder(reason) {
     placeholderEl.hidden = false;
     topbarEl.hidden = true;
     overlayEl.hidden = true;
+
+    if (reason === 'off') {
+      if (placeholderIconEl) placeholderIconEl.className = 'fa-solid fa-eye-slash';
+      if (placeholderTextEl) placeholderTextEl.textContent = 'Camera is turned off. Tap the eye icon to scan again.';
+    } else {
+      if (placeholderIconEl) placeholderIconEl.className = 'fa-solid fa-camera';
+      if (placeholderTextEl) placeholderTextEl.textContent = 'Camera access is needed to scan products. Please allow camera permission and reload the app.';
+    }
   }
 
   function hidePlaceholder() {
     placeholderEl.hidden = true;
     topbarEl.hidden = false;
     overlayEl.hidden = false;
+  }
+
+  function setCameraToggleUI(enabled) {
+    if (!cameraToggleBtn) return;
+    const icon = cameraToggleBtn.querySelector('i');
+    cameraToggleBtn.setAttribute('aria-pressed', String(enabled));
+    cameraToggleBtn.setAttribute('aria-label', enabled ? 'Turn camera off' : 'Turn camera on');
+    cameraToggleBtn.title = enabled ? 'Turn camera off' : 'Turn camera on';
+    cameraToggleBtn.classList.toggle('off', !enabled);
+    if (icon) icon.className = enabled ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+  }
+
+  /**
+   * Manually turns the live camera off or back on via the eye button in the
+   * scanner topbar. Independent of the navigation-driven stop()/resume():
+   * once the user turns the camera off, it stays off even if they leave and
+   * return to the Billing screen, until they tap the eye icon again.
+   */
+  async function toggleCameraEnabled() {
+    if (isManuallyDisabled) {
+      isManuallyDisabled = false;
+      setCameraToggleUI(true);
+      await resume();
+    } else {
+      isManuallyDisabled = true;
+      setCameraToggleUI(false);
+      await stopCameraStream();
+      isRunning = false;
+      showPlaceholder('off');
+    }
   }
 
   /**
@@ -278,9 +322,12 @@ const Scanner = (() => {
 
   /**
    * Resumes the scanner after it was stopped by navigating away from the
-   * Billing screen. Starts instantly, no loading screen.
+   * Billing screen. Starts instantly, no loading screen. Does nothing if
+   * the user manually turned the camera off via the eye button — that
+   * choice persists across navigation until they turn it back on.
    */
   async function resume() {
+    if (isManuallyDisabled) return;
     if (isRunning || isStarting) return;
     if (!currentCameraId) {
       await start();
