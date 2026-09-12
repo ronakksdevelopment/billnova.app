@@ -468,7 +468,10 @@ const Scanner = (() => {
 
   /**
    * Switches between front and rear cameras instantly, with no loading
-   * overlay or artificial delay.
+   * overlay or artificial delay. Sets the same isStarting/isStopping guards
+   * as start()/resume()/switchMode() and reflects a failed switch in
+   * isRunning + a placeholder, instead of leaving a black frozen preview
+   * with isRunning still (incorrectly) true.
    */
   async function switchCamera() {
     if (availableCameras.length < 2 || isStarting || isStopping) return;
@@ -477,12 +480,29 @@ const Scanner = (() => {
 
     isTorchOn = false;
     flashlightBtn.classList.remove('on');
+
+    isStopping = true;
     await stopCameraStream();
+    isRunning = false;
+    isStopping = false;
+
+    isStarting = true;
     try {
       await startCameraStream(currentCameraId);
-    } catch (e) {
-      console.error('[Scanner] Camera switch failed', e);
-      Toast.error('Could not switch camera.');
+      isRunning = true;
+      hidePlaceholder();
+    } catch (err) {
+      console.error('[Scanner] Camera switch failed', err);
+      if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+        permissionRevoked = true;
+        showPlaceholder('revoked');
+        Toast.error('Camera permission was lost while switching cameras. Tap "Enable Camera" to reconnect.');
+      } else {
+        showPlaceholder('unavailable');
+        Toast.error('Could not switch camera. Tap below to retry.');
+      }
+    } finally {
+      isStarting = false;
     }
   }
 
@@ -506,6 +526,16 @@ const Scanner = (() => {
   /**
    * Switches scan mode between QR and Barcode, restarting the stream with
    * the new format config and updating the scan frame proportions/color.
+   *
+   * Sets the same isStarting/isStopping guards as start()/resume() while the
+   * restart is in flight, and — critically — actually reflects failure in
+   * isRunning/permissionRevoked and shows a placeholder instead of silently
+   * logging it. Previously a failed restart here left isRunning stuck at its
+   * old value with no guard set, so the preview went black with no way to
+   * recover except leaving and re-entering the Billing screen, and
+   * permission failures never flipped permissionRevoked, so the "Re-enable
+   * Camera Access" quick action never appeared even though the camera was
+   * genuinely dead.
    * @param {'qr'|'barcode'} mode
    */
   async function switchMode(mode) {
@@ -519,13 +549,30 @@ const Scanner = (() => {
 
     updateScanFrame(mode, /* animate= */ true);
 
-    if (isRunning) {
-      await stopCameraStream();
-      try {
-        await startCameraStream(currentCameraId);
-      } catch (e) {
-        console.error('[Scanner] Mode switch failed', e);
+    if (!isRunning) return;
+
+    isStopping = true;
+    await stopCameraStream();
+    isRunning = false;
+    isStopping = false;
+
+    isStarting = true;
+    try {
+      await startCameraStream(currentCameraId);
+      isRunning = true;
+      hidePlaceholder();
+    } catch (err) {
+      console.error('[Scanner] Mode switch failed', err);
+      if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+        permissionRevoked = true;
+        showPlaceholder('revoked');
+        Toast.error('Camera permission was lost while switching modes. Tap "Enable Camera" to reconnect.');
+      } else {
+        showPlaceholder('unavailable');
+        Toast.error('Could not switch scan mode. Tap below to retry.');
       }
+    } finally {
+      isStarting = false;
     }
   }
 
