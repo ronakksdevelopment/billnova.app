@@ -4,7 +4,7 @@
    serves everything from cache, falling back to network for anything new.
    ========================================================================== */
 
-const CACHE_VERSION = 'billnova-v1.0.0';
+const CACHE_VERSION = 'billnova-v1.1.0';
 const CACHE_NAME = `billnova-cache-${CACHE_VERSION}`;
 
 // App shell: everything needed for the app to boot and run fully offline.

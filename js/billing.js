@@ -8,7 +8,7 @@ const Billing = (() => {
   let currentBill = null;
 
   // Confirm Bill modal elements
-  let confirmBillForm, cbShopName, cbShopContact, cbCustomerName, cbCustomerContact, cbWhatsappSame;
+  let confirmBillForm, cbShopName, cbShopContact, cbCustomerName, cbCustomerContact;
 
   // Payment modal elements
   let paymentTabCash, paymentTabUpi, paymentCashPanel, paymentUpiPanel;
@@ -24,7 +24,6 @@ const Billing = (() => {
     cbShopContact = document.getElementById('cb-shop-contact');
     cbCustomerName = document.getElementById('cb-customer-name');
     cbCustomerContact = document.getElementById('cb-customer-contact');
-    cbWhatsappSame = document.getElementById('cb-whatsapp-same');
 
     paymentTabCash = document.getElementById('payment-tab-cash');
     paymentTabUpi = document.getElementById('payment-tab-upi');
@@ -49,16 +48,6 @@ const Billing = (() => {
     document.getElementById('confirm-bill-close')?.addEventListener('click', () => ModalManager.close('confirm-bill-modal'));
     document.getElementById('confirm-bill-cancel')?.addEventListener('click', () => ModalManager.close('confirm-bill-modal'));
 
-    cbWhatsappSame.addEventListener('change', () => {
-      if (cbWhatsappSame.checked) {
-        cbCustomerContact.value = cbCustomerContact.value; // keep as-is; copy handled below
-        syncWhatsappNumber();
-      }
-    });
-    cbCustomerContact.addEventListener('input', () => {
-      if (cbWhatsappSame.checked) syncWhatsappNumber();
-    });
-
     confirmBillForm.addEventListener('submit', handleConfirmBillSubmit);
 
     document.getElementById('payment-close')?.addEventListener('click', () => ModalManager.close('payment-modal'));
@@ -75,11 +64,6 @@ const Billing = (() => {
     document.getElementById('success-done-btn')?.addEventListener('click', closeSuccessScreen);
   }
 
-  function syncWhatsappNumber() {
-    // "WhatsApp same as contact" simply mirrors the customer contact number;
-    // no separate field is needed since WhatsApp sharing reuses customerContact.
-  }
-
   function openConfirmBill() {
     const totals = Cart.computeTotals();
     if (totals.totalItems === 0) {
@@ -91,7 +75,6 @@ const Billing = (() => {
     confirmBillForm.reset();
     cbShopName.value = profile.shopName || '';
     cbShopContact.value = profile.contactNumber || '';
-    cbWhatsappSame.checked = false;
 
     ModalManager.open('confirm-bill-modal');
   }
@@ -104,7 +87,6 @@ const Billing = (() => {
       shopContact: cbShopContact.value.trim(),
       customerName: cbCustomerName.value.trim(),
       customerContact: cbCustomerContact.value.trim(),
-      whatsappSameAsContact: cbWhatsappSame.checked,
     };
 
     ModalManager.close('confirm-bill-modal');

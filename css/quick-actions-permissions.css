@@ -25,7 +25,7 @@
 .permissions-card {
   width: 100%;
   max-width: 420px;
-  background: var(--color-white);
+  background: var(--surface-card);
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
   padding: var(--space-6) var(--space-5) calc(var(--space-5) + var(--safe-bottom));
@@ -67,7 +67,7 @@
 .permissions-card h2 {
   font-size: var(--fs-lg);
   font-weight: 800;
-  color: var(--color-navy);
+  color: var(--text-primary);
   margin-bottom: var(--space-2);
 }
 
@@ -101,7 +101,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--color-white);
+  background: var(--surface-card);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,7 +124,7 @@
 .permission-row-title {
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--color-navy);
+  color: var(--text-primary);
 }
 
 .permission-row-desc {
@@ -201,7 +201,7 @@
 .quick-actions-sheet {
   width: 100%;
   max-width: var(--max-content-width);
-  background: var(--color-white);
+  background: var(--surface-card);
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
   padding: var(--space-3) var(--space-4) calc(var(--space-4) + var(--safe-bottom));
@@ -251,7 +251,7 @@
 
 .quick-action-icon i {
   font-size: 16px;
-  color: var(--color-navy);
+  color: var(--text-primary);
 }
 
 .quick-action-text {
@@ -264,7 +264,7 @@
 .quick-action-title {
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--color-navy);
+  color: var(--text-primary);
 }
 
 .quick-action-desc {

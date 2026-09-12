@@ -123,17 +123,6 @@
             <i class="fa-solid fa-check permission-row-check" aria-hidden="true"></i>
           </button>
         </li>
-        <li class="permission-row" data-permission="notifications">
-          <div class="permission-row-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></div>
-          <div class="permission-row-text">
-            <span class="permission-row-title">Notifications</span>
-            <span class="permission-row-desc">Optional: alerts for low stock or sync updates.</span>
-          </div>
-          <button class="permission-row-btn" data-action="notifications" aria-label="Allow notifications">
-            <span class="permission-row-btn-label">Allow</span>
-            <i class="fa-solid fa-check permission-row-check" aria-hidden="true"></i>
-          </button>
-        </li>
       </ul>
 
       <button class="btn btn-primary btn-block" id="permissions-continue-btn">Continue</button>
@@ -155,7 +144,7 @@
       <button class="quick-action-item" data-quick-action="toggle-camera" role="menuitem">
         <span class="quick-action-icon"><i class="fa-solid fa-eye" aria-hidden="true"></i></span>
         <span class="quick-action-text">
-          <span class="quick-action-title">Turn Camera Off</span>
+          <span class="quick-action-title">Toggle Camera</span>
           <span class="quick-action-desc">Pause the live scanner</span>
         </span>
       </button>
@@ -679,10 +668,6 @@
           <label class="field-label" for="cb-customer-contact">Customer Contact Number</label>
           <input type="tel" id="cb-customer-contact" class="field-input" placeholder="10-digit mobile number" autocomplete="off">
         </div>
-        <label class="checkbox-row">
-          <input type="checkbox" id="cb-whatsapp-same">
-          <span><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp same as contact number</span>
-        </label>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" id="confirm-bill-cancel">Cancel</button>
           <button type="submit" class="btn btn-primary">

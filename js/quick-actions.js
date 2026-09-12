@@ -95,8 +95,7 @@ const QuickActions = (() => {
       scanLabelEl.textContent = 'Enable Camera';
       return;
     }
-    const on = window.Scanner ? Scanner.isCameraOn() : true;
-    scanLabelEl.textContent = on ? 'Turn Camera Off' : 'Turn Camera On';
+    scanLabelEl.textContent = 'Toggle Camera';
   }
 
   function restoreDefaultLabel() {
@@ -130,8 +129,10 @@ const QuickActions = (() => {
   }
 
   /**
-   * Updates the "Switch to Barcode/QR" and "Turn Camera Off/On" labels to
-   * reflect current Scanner state each time the sheet opens.
+   * Updates the "Switch to Barcode/QR" label and the camera row's icon to
+   * reflect current Scanner state each time the sheet opens. The camera
+   * row's title stays a static "Toggle Camera" regardless of state — only
+   * its icon (eye / eye-slash) reflects on/off.
    */
   function refreshLabels() {
     const modeItem = sheetEl.querySelector('[data-quick-action="toggle-mode"]');
@@ -146,8 +147,6 @@ const QuickActions = (() => {
 
     if (cameraItem && window.Scanner) {
       const on = Scanner.isCameraOn();
-      cameraItem.querySelector('.quick-action-title').textContent =
-        on ? 'Turn Camera Off' : 'Turn Camera On';
       cameraItem.querySelector('.quick-action-icon i').className =
         on ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
     }

@@ -26,6 +26,7 @@
   --surface-overlay: rgba(7, 26, 61, 0.55);
   --surface-tint: rgba(255, 255, 255, 0.12);
   --surface-tint-strong: rgba(255, 255, 255, 0.18);
+  --border-soft: rgba(7, 26, 61, 0.08);
 
   /* Text */
   --text-primary: #0B1220;

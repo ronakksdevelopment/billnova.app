@@ -13,11 +13,12 @@ const Receipt = (() => {
    */
   function nextInvoiceNumber() {
     const year = new Date().getFullYear();
+    const seqKey = `${INVOICE_SEQ_KEY}_${year}`;
     let seq;
     try {
-      seq = parseInt(localStorage.getItem(INVOICE_SEQ_KEY) || '0', 10);
+      seq = parseInt(localStorage.getItem(seqKey) || '0', 10);
       seq += 1;
-      localStorage.setItem(INVOICE_SEQ_KEY, String(seq));
+      localStorage.setItem(seqKey, String(seq));
     } catch (e) {
       console.warn('[Receipt] Failed to persist invoice sequence, using timestamp fallback', e);
       seq = Number(String(Date.now()).slice(-6));

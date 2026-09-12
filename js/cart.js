@@ -238,8 +238,11 @@ const Cart = (() => {
     const subtotal = item.qty * item.price;
     return `
       <li class="cart-item" data-item-id="${item.id}">
+        <button class="cart-item-edit tap-sm" data-action="edit" aria-label="Edit ${Utils.escapeHtml(item.name)}" title="Edit name or price">
+          <i class="fa-solid fa-pen" aria-hidden="true"></i>
+        </button>
         <button class="cart-item-trash tap-sm" data-action="remove" aria-label="Remove ${Utils.escapeHtml(item.name)}">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
         </button>
         <div class="cart-item-icon">
           <i class="fa-solid ${item.code ? 'fa-qrcode' : 'fa-basket-shopping'}" aria-hidden="true"></i>
@@ -247,15 +250,12 @@ const Cart = (() => {
         <div class="cart-item-info">
           <div class="cart-item-name-row">
             <div class="cart-item-name">${Utils.escapeHtml(item.name)}</div>
-            <button class="cart-item-edit tap-sm" data-action="edit" aria-label="Edit ${Utils.escapeHtml(item.name)}" title="Edit name or price">
-              <i class="fa-solid fa-pen" aria-hidden="true"></i>
-            </button>
           </div>
           <div class="cart-item-meta">${item.code ? 'Scanned' : 'Manual entry'}</div>
-          <div class="cart-item-price">${Utils.formatCurrency(item.price)} each</div>
+          <div class="cart-item-price">${Utils.formatCurrency(item.price, Profile.get().currencySymbol)} each</div>
         </div>
         <div class="cart-item-right">
-          <div class="cart-item-subtotal">${Utils.formatCurrency(subtotal)}</div>
+          <div class="cart-item-subtotal">${Utils.formatCurrency(subtotal, Profile.get().currencySymbol)}</div>
           <div class="qty-control">
             <button class="qty-btn minus tap-sm" data-action="minus" aria-label="Decrease quantity">
               <i class="fa-solid fa-minus" aria-hidden="true"></i>
@@ -396,9 +396,10 @@ const Cart = (() => {
     const totals = computeTotals();
     summaryTotalItems.textContent = String(totals.totalItems);
     summaryTotalQty.textContent = String(totals.totalQty);
-    summaryDiscount.textContent = Utils.formatCurrency(totals.discountAmount);
-    summaryGst.textContent = Utils.formatCurrency(totals.gstAmount);
-    summaryGrandTotal.textContent = Utils.formatCurrency(totals.grandTotal);
+    const currency = Profile.get().currencySymbol;
+    summaryDiscount.textContent = Utils.formatCurrency(totals.discountAmount, currency);
+    summaryGst.textContent = Utils.formatCurrency(totals.gstAmount, currency);
+    summaryGrandTotal.textContent = Utils.formatCurrency(totals.grandTotal, currency);
   }
 
   /**
@@ -419,12 +420,17 @@ const Cart = (() => {
   function loadFromStorage() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
+      const defaultGst = (window.Profile && Profile.get().gstPercent) || 0;
+      if (!raw) {
+        gstPercent = defaultGst;
+        gstInput.value = gstPercent || '';
+        return;
+      }
       const state = JSON.parse(raw);
       items = Array.isArray(state.items) ? state.items : [];
       notes = state.notes || '';
       discountPercent = state.discountPercent || 0;
-      gstPercent = state.gstPercent || 0;
+      gstPercent = (typeof state.gstPercent === 'number') ? state.gstPercent : defaultGst;
 
       notesInput.value = notes;
       discountInput.value = discountPercent || '';

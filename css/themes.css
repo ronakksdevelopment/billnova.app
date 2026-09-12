@@ -20,6 +20,7 @@
   --text-secondary: #9CA3AF;
   --text-muted: #6B7280;
   --surface-card: rgba(16, 24, 39, 0.97);
+  --border-soft: rgba(255, 255, 255, 0.10);
 }
 
 [data-theme="dark"] body {

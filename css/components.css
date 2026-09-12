@@ -50,13 +50,13 @@
 
 .btn-secondary {
   background: var(--color-soft-gray);
-  color: var(--color-navy);
+  color: var(--text-primary);
 }
 
 .btn-outline {
   background: transparent;
-  border: 2px solid var(--color-navy);
-  color: var(--color-navy);
+  border: 2px solid var(--text-primary);
+  color: var(--text-primary);
 }
 
 .btn-danger {
@@ -66,7 +66,7 @@
 
 .btn-ghost {
   background: transparent;
-  color: var(--color-navy);
+  color: var(--text-primary);
 }
 
 .btn-block {
@@ -103,7 +103,7 @@
 
 .icon-btn--light {
   background: var(--color-soft-gray);
-  color: var(--color-navy);
+  color: var(--text-primary);
 }
 
 .icon-btn--active {
@@ -135,7 +135,7 @@
 
 .badge-navy {
   background: rgba(7, 26, 61, 0.08);
-  color: var(--color-navy);
+  color: var(--text-primary);
 }
 
 /* ---------- Inputs ---------- */
@@ -156,7 +156,7 @@
   padding: 14px 16px;
   border-radius: var(--radius-sm);
   border: 2px solid var(--color-soft-gray);
-  background: var(--color-white);
+  background: var(--surface-card);
   font-size: var(--fs-md);
   transition: border-color var(--duration-fast) var(--ease-standard);
 }
@@ -208,7 +208,7 @@
 .section-title {
   font-size: var(--fs-lg);
   font-weight: 800;
-  color: var(--color-navy);
+  color: var(--text-primary);
   margin-bottom: var(--space-3);
   display: flex;
   align-items: center;
@@ -250,7 +250,7 @@
 
 .empty-state h3 {
   font-size: var(--fs-lg);
-  color: var(--color-navy);
+  color: var(--text-primary);
   margin-bottom: var(--space-2);
 }
 
@@ -372,7 +372,7 @@
 }
 
 .modal {
-  background: var(--color-white);
+  background: var(--surface-card);
   width: 100%;
   max-width: 480px;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
@@ -412,7 +412,7 @@
 .modal-title {
   font-size: var(--fs-xl);
   font-weight: 800;
-  color: var(--color-navy);
+  color: var(--text-primary);
 }
 
 .modal-close {
@@ -457,6 +457,6 @@
   text-align: center;
   font-size: var(--fs-lg);
   font-weight: 800;
-  color: var(--color-navy);
+  color: var(--text-primary);
   margin-bottom: var(--space-2);
 }

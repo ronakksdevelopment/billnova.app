@@ -9,9 +9,10 @@ const Utils = (() => {
    * @param {number} amount
    * @returns {string}
    */
-  function formatCurrency(amount) {
+  function formatCurrency(amount, symbol) {
     const num = Number(amount) || 0;
-    return '₹' + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const currency = symbol || '₹';
+    return currency + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   /**
@@ -47,7 +48,12 @@ const Utils = (() => {
   }
 
   /**
-   * Plays a short beep sound using the Web Audio API (no external audio file needed).
+   * Plays a short, loud beep using the Web Audio API (no external audio
+   * file needed), tuned to sound like a real handheld barcode scanner:
+   * a single flat square-wave tone at ~2.7kHz (the classic laser-scanner
+   * pitch) with a near-instant attack and a hard cutoff, rather than a
+   * soft synth "ding". Square wave (vs. sine) is what gives it that
+   * harsher, more piercing "beep" character instead of a musical note.
    */
   function playBeep() {
     try {
@@ -56,14 +62,20 @@ const Utils = (() => {
       const ctx = new AudioCtx();
       const oscillator = ctx.createOscillator();
       const gain = ctx.createGain();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(1046.5, ctx.currentTime); // C6
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+      const duration = 0.09; // real scanner beeps are short and clipped, not a ringing tone
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(2730, ctx.currentTime); // classic laser-scanner beep pitch
+      // Near-instant attack to full volume (loud), then a flat hold and a
+      // hard (not exponential) cutoff — that's what makes it read as a
+      // sharp electronic "beep" rather than a soft fading tone.
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + 0.005);
+      gain.gain.setValueAtTime(0.9, ctx.currentTime + duration - 0.015);
+      gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + duration);
       oscillator.connect(gain);
       gain.connect(ctx.destination);
       oscillator.start();
-      oscillator.stop(ctx.currentTime + 0.18);
+      oscillator.stop(ctx.currentTime + duration);
       oscillator.onended = () => ctx.close();
     } catch (e) {
       console.warn('[Utils] Beep playback failed', e);

@@ -27,7 +27,7 @@
   padding: 14px 16px 14px 42px;
   border-radius: var(--radius-md);
   border: 2px solid var(--color-soft-gray);
-  background: var(--color-white);
+  background: var(--surface-card);
   font-size: var(--fs-sm);
   transition: border-color var(--duration-fast) var(--ease-standard);
 }
@@ -59,7 +59,7 @@
   padding: 12px 16px;
   border-radius: var(--radius-md);
   border: 2px solid var(--color-soft-gray);
-  background: var(--color-white);
+  background: var(--surface-card);
   font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--text-secondary);
@@ -85,7 +85,7 @@
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: var(--color-white);
+  background: var(--surface-card);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--color-soft-gray);
@@ -131,7 +131,7 @@
 }
 
 .custom-dropdown-option.selected {
-  color: var(--color-navy);
+  color: var(--text-primary);
   font-weight: 800;
 }
 
@@ -149,7 +149,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  background: var(--color-white);
+  background: var(--surface-card);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
   box-shadow: var(--shadow-sm);
@@ -193,7 +193,7 @@
 .recent-item-invoice {
   font-weight: 700;
   font-size: var(--fs-sm);
-  color: var(--color-navy);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
