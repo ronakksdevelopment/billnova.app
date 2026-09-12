@@ -35,10 +35,13 @@ const QuickActions = (() => {
 
     // Belt-and-braces for older/quirkier mobile browsers that don't fire
     // pointer events consistently for long-press: mirror the same
-    // start/end logic on touch events directly. preventDefault on
-    // touchstart stops the browser's own long-press context menu / text
-    // selection from stealing the gesture.
-    scanBtn.addEventListener('touchstart', (e) => { e.preventDefault(); onPressStart(); }, { passive: false });
+    // start/end tracking on touch events too. Deliberately does NOT call
+    // preventDefault() on touchstart — doing so was suppressing the
+    // browser's synthetic click event for ordinary short taps as well,
+    // which is what broke single-tap navigation to the Billing screen on
+    // touch devices. The native long-press context menu is blocked via
+    // the 'contextmenu' listener below instead, so nothing is lost.
+    scanBtn.addEventListener('touchstart', onPressStart, { passive: true });
     scanBtn.addEventListener('touchend', onPressEnd);
     scanBtn.addEventListener('touchcancel', cancelPress);
 
