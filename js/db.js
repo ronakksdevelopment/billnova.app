@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — IndexedDB Layer
+   BillNova India: IndexedDB Layer
    Stores: products (scanned code -> name/price), bills (Part 1.0 placeholder)
    ========================================================================== */
 

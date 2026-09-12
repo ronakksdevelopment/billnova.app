@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Cart / Billing Logic
+   BillNova India: Cart / Billing Logic
    Manages the in-memory cart, renders the list, computes live totals,
    and persists cart state to localStorage so it survives refreshes.
    ========================================================================== */
@@ -151,7 +151,7 @@ const Cart = (() => {
   }
 
   /**
-   * Handles the trash icon tap — asks for confirmation before removing.
+   * Handles the trash icon tap. Asks for confirmation before removing.
    * @param {string} id
    */
   async function handleRemoveClick(id) {

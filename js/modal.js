@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Modal Manager
+   BillNova India: Modal Manager
    Generic open/close + a Promise-based confirm dialog helper
    ========================================================================== */
 

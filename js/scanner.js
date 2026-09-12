@@ -1,6 +1,8 @@
 /* ==========================================================================
-   BillNova India — Live Scanner
-   Rear/front camera switch, flashlight, QR + Barcode modes, duplicate guard
+   BillNova India: Live Scanner
+   Opens instantly when the Billing screen loads, no start button and no
+   loading screens. Rear/front camera switch, flashlight, QR + Barcode
+   modes with an adaptive scan frame, and a duplicate-scan guard.
    ========================================================================== */
 
 const Scanner = (() => {
@@ -12,6 +14,7 @@ const Scanner = (() => {
   let availableCameras = [];
   let currentCameraIndex = 0;
   let isRunning = false;
+  let isStarting = false;
   let isTorchOn = false;
   let currentMode = 'qr'; // 'qr' | 'barcode'
   let lastScannedCode = null;
@@ -19,8 +22,8 @@ const Scanner = (() => {
   let onScanSuccessCallback = null;
 
   // Elements
-  let viewportEl, placeholderEl, topbarEl, overlayEl, startBtn, flashlightBtn, cameraSwitchBtn;
-  let modeQrBtn, modeBarcodeBtn, successFlashEl;
+  let viewportEl, placeholderEl, topbarEl, overlayEl, flashlightBtn, cameraSwitchBtn;
+  let modeQrBtn, modeBarcodeBtn, successFlashEl, scanFrameEl;
 
   const QR_CONFIG = {
     fps: 12,
@@ -54,42 +57,48 @@ const Scanner = (() => {
     placeholderEl = document.getElementById('scanner-placeholder');
     topbarEl = document.getElementById('scanner-topbar');
     overlayEl = document.getElementById('scanner-overlay');
-    startBtn = document.getElementById('start-scanner-btn');
     flashlightBtn = document.getElementById('flashlight-btn');
     cameraSwitchBtn = document.getElementById('camera-switch-btn');
     modeQrBtn = document.getElementById('mode-qr-btn');
     modeBarcodeBtn = document.getElementById('mode-barcode-btn');
     successFlashEl = document.getElementById('scan-success-flash');
+    scanFrameEl = document.getElementById('scan-frame');
   }
 
   /**
-   * Initializes event listeners. Call once on app start.
+   * Initializes event listeners and starts the camera immediately.
+   * Call once on app start while the Billing screen is the active screen.
    * @param {Function} onScanSuccess - callback(code: string)
    */
   function init(onScanSuccess) {
     cacheElements();
     onScanSuccessCallback = onScanSuccess;
 
-    startBtn.addEventListener('click', start);
     flashlightBtn.addEventListener('click', toggleFlashlight);
     cameraSwitchBtn.addEventListener('click', switchCamera);
     modeQrBtn.addEventListener('click', () => switchMode('qr'));
     modeBarcodeBtn.addEventListener('click', () => switchMode('barcode'));
 
     html5QrCode = new Html5Qrcode(READER_ELEMENT_ID, /* verbose= */ false);
+
+    // Start the live camera immediately, no user action required.
+    start();
   }
 
   /**
    * Requests camera access and starts scanning using the current mode.
+   * Runs silently in the background with no loading overlay so the
+   * scanner feels instant as soon as the Billing screen is shown.
    */
   async function start() {
+    if (isRunning || isStarting) return;
+    isStarting = true;
     try {
-      Loading.show('Starting camera…');
       availableCameras = await Html5Qrcode.getCameras();
 
       if (!availableCameras || availableCameras.length === 0) {
-        Loading.hide();
         Toast.error('No camera found on this device.');
+        showPlaceholder();
         return;
       }
 
@@ -102,17 +111,28 @@ const Scanner = (() => {
 
       await startCameraStream(currentCameraId);
 
-      placeholderEl.hidden = true;
-      topbarEl.hidden = false;
-      overlayEl.hidden = false;
+      hidePlaceholder();
       cameraSwitchBtn.hidden = availableCameras.length < 2;
       isRunning = true;
-      Loading.hide();
     } catch (err) {
-      Loading.hide();
       console.error('[Scanner] Failed to start camera', err);
       Toast.error('Camera permission denied or unavailable.');
+      showPlaceholder();
+    } finally {
+      isStarting = false;
     }
+  }
+
+  function showPlaceholder() {
+    placeholderEl.hidden = false;
+    topbarEl.hidden = true;
+    overlayEl.hidden = true;
+  }
+
+  function hidePlaceholder() {
+    placeholderEl.hidden = true;
+    topbarEl.hidden = false;
+    overlayEl.hidden = false;
   }
 
   /**
@@ -130,7 +150,8 @@ const Scanner = (() => {
   }
 
   /**
-   * Stops the current camera stream (used before switching camera/mode).
+   * Stops the current camera stream (used before switching camera/mode, or
+   * when navigating away from the Billing screen).
    */
   async function stopCameraStream() {
     if (html5QrCode && isRunning) {
@@ -149,7 +170,7 @@ const Scanner = (() => {
   function handleDecodedText(decodedText) {
     const now = Date.now();
     if (decodedText === lastScannedCode && (now - lastScannedAt) < DUPLICATE_COOLDOWN_MS) {
-      return; // duplicate rapid scan — ignore
+      return; // duplicate rapid scan, ignore
     }
     lastScannedCode = decodedText;
     lastScannedAt = now;
@@ -172,24 +193,23 @@ const Scanner = (() => {
   }
 
   /**
-   * Switches between front and rear cameras.
+   * Switches between front and rear cameras instantly, with no loading
+   * overlay or artificial delay.
    */
   async function switchCamera() {
     if (availableCameras.length < 2) return;
     currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
     currentCameraId = availableCameras[currentCameraIndex].id;
 
-    Loading.show('Switching camera…');
-    await stopCameraStream();
     isTorchOn = false;
     flashlightBtn.classList.remove('on');
+    await stopCameraStream();
     try {
       await startCameraStream(currentCameraId);
     } catch (e) {
       console.error('[Scanner] Camera switch failed', e);
       Toast.error('Could not switch camera.');
     }
-    Loading.hide();
   }
 
   /**
@@ -210,7 +230,9 @@ const Scanner = (() => {
   }
 
   /**
-   * Switches scan mode between QR and Barcode, restarting the stream with new format config.
+   * Switches scan mode between QR and Barcode, restarting the stream with
+   * the new format config and updating the scan frame proportions:
+   * a square frame for QR codes, a wider rectangular frame for barcodes.
    * @param {'qr'|'barcode'} mode
    */
   async function switchMode(mode) {
@@ -222,25 +244,60 @@ const Scanner = (() => {
     modeBarcodeBtn.classList.toggle('active', mode === 'barcode');
     modeBarcodeBtn.setAttribute('aria-selected', String(mode === 'barcode'));
 
+    updateScanFrame(mode);
+
     if (isRunning) {
-      Loading.show('Switching mode…');
       await stopCameraStream();
       try {
         await startCameraStream(currentCameraId);
       } catch (e) {
         console.error('[Scanner] Mode switch failed', e);
       }
-      Loading.hide();
     }
   }
 
   /**
-   * Stops the scanner entirely (e.g., when navigating away). Reserved for future page changes.
+   * Updates the scan frame's shape to match the active mode: a square
+   * frame for QR codes, a wider rectangular frame for barcodes.
+   * @param {'qr'|'barcode'} mode
+   */
+  function updateScanFrame(mode) {
+    if (!scanFrameEl) return;
+    scanFrameEl.classList.toggle('mode-qr', mode === 'qr');
+    scanFrameEl.classList.toggle('mode-barcode', mode === 'barcode');
+  }
+
+  /**
+   * Stops the scanner entirely. Called when the user navigates away from
+   * the Billing screen, and resumed via resume() when they come back.
    */
   async function stop() {
     await stopCameraStream();
     isRunning = false;
   }
 
-  return { init, start, stop };
+  /**
+   * Resumes the scanner after it was stopped by navigating away from the
+   * Billing screen. Starts instantly, no loading screen.
+   */
+  async function resume() {
+    if (isRunning || isStarting) return;
+    if (!currentCameraId) {
+      await start();
+      return;
+    }
+    isStarting = true;
+    try {
+      await startCameraStream(currentCameraId);
+      hidePlaceholder();
+      isRunning = true;
+    } catch (err) {
+      console.error('[Scanner] Failed to resume camera', err);
+      showPlaceholder();
+    } finally {
+      isStarting = false;
+    }
+  }
+
+  return { init, start, stop, resume };
 })();

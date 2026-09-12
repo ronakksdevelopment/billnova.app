@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Profile / Business Settings
+   BillNova India: Profile / Business Settings
    Stores default shop info, UPI ID, GST%, receipt footer, currency & theme
    locally. Used to pre-fill Confirm Bill, Payment and Receipt screens.
    ========================================================================== */

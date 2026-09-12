@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Billing Flow
+   BillNova India: Billing Flow
    Confirm Bill -> Payment (Cash/UPI with QR) -> Success animation -> Actions
    ========================================================================== */
 
@@ -160,8 +160,8 @@ const Billing = (() => {
     const totals = Cart.computeTotals();
 
     upiShopNameEl.textContent = pendingBillDraft?.shopName || profile.shopName || 'Your Shop';
-    upiIdEl.textContent = profile.upiId || 'Not set — add it in Profile';
-    upiPhoneEl.textContent = pendingBillDraft?.shopContact || profile.contactNumber || '—';
+    upiIdEl.textContent = profile.upiId || 'Not set. Add it in Profile';
+    upiPhoneEl.textContent = pendingBillDraft?.shopContact || profile.contactNumber || '-';
     upiAmountEl.textContent = (profile.currencySymbol || '₹') + totals.grandTotal.toFixed(2);
 
     upiQrContainer.innerHTML = '';

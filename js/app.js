@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — App Bootstrap
+   BillNova India: App Bootstrap
    Wires together: splash screen, onboarding, scanner -> DB lookup -> cart,
    manual add flow, and PWA install/service worker registration.
    ========================================================================== */
@@ -30,7 +30,6 @@
     registerServiceWorker();
 
     // Reveal the app, hide splash
-    await new Promise((resolve) => setTimeout(resolve, 900)); // brief brand moment
     document.getElementById('splash-screen').classList.add('hidden');
     document.getElementById('app-root').hidden = false;
 

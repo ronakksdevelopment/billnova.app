@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Receipt Generator
+   BillNova India: Receipt Generator
    Builds a professional Indian thermal-style tall receipt for a completed
    bill, and exports it as PDF (html2canvas + jsPDF), print, or WhatsApp share.
    ========================================================================== */
@@ -13,9 +13,15 @@ const Receipt = (() => {
    */
   function nextInvoiceNumber() {
     const year = new Date().getFullYear();
-    let seq = parseInt(localStorage.getItem(INVOICE_SEQ_KEY) || '0', 10);
-    seq += 1;
-    localStorage.setItem(INVOICE_SEQ_KEY, String(seq));
+    let seq;
+    try {
+      seq = parseInt(localStorage.getItem(INVOICE_SEQ_KEY) || '0', 10);
+      seq += 1;
+      localStorage.setItem(INVOICE_SEQ_KEY, String(seq));
+    } catch (e) {
+      console.warn('[Receipt] Failed to persist invoice sequence, using timestamp fallback', e);
+      seq = Number(String(Date.now()).slice(-6));
+    }
     return `BN-${year}-${String(seq).padStart(6, '0')}`;
   }
 
@@ -209,7 +215,7 @@ const Receipt = (() => {
       const fileName = `${bill.invoiceNumber}.png`;
       const file = new File([blob], fileName, { type: 'image/png' });
 
-      const shareText = `Receipt from ${bill.shopName || 'BillNova India'} — ${bill.invoiceNumber} — Total ${bill.currencySymbol || '₹'}${bill.grandTotal.toFixed(2)}`;
+      const shareText = `Receipt from ${bill.shopName || 'BillNova India'}, ${bill.invoiceNumber}, Total ${bill.currencySymbol || '₹'}${bill.grandTotal.toFixed(2)}`;
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
@@ -225,7 +231,7 @@ const Receipt = (() => {
           ? `https://wa.me/${phone.length === 10 ? '91' + phone : phone}?text=${encodeURIComponent(shareText)}`
           : `https://wa.me/?text=${encodeURIComponent(shareText)}`;
         window.open(waUrl, '_blank');
-        Toast.info('Opened WhatsApp — attach the downloaded receipt image if needed');
+        Toast.info('Opened WhatsApp. Attach the downloaded receipt image if needed.');
         // Also trigger a download so the user has the image to attach manually
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -238,7 +244,7 @@ const Receipt = (() => {
       }
     } catch (err) {
       if (err && err.name === 'AbortError') {
-        // user cancelled share sheet — no toast needed
+        // user cancelled share sheet, no toast needed
       } else {
         console.error('[Receipt] WhatsApp share failed', err);
         Toast.error('Could not share receipt');

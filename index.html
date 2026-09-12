@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-  <title>BillNova India — Instant Billing App</title>
-  <meta name="description" content="BillNova India — Scan, Bill, Done. A fast offline-first billing app for grocery, pharmacy, bakery, clothing, electronics, salon, hardware and restaurant businesses.">
+  <title>BillNova India: Instant Billing App</title>
+  <meta name="description" content="BillNova India: Scan, Bill, Done. A fast offline-first billing app for grocery, pharmacy, bakery, clothing, electronics, salon, hardware and restaurant businesses.">
   <meta name="theme-color" content="#071A3D">
 
   <!-- PWA -->
@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-title" content="BillNova">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 
-  <!-- Fonts (Google Fonts CDN — falls back to system fonts if offline/blocked) -->
+  <!-- Fonts (Google Fonts CDN, falls back to system fonts if offline or blocked) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -61,7 +61,7 @@
           <span class="onboarding-step-num">1</span>
         </div>
         <h2>Scan</h2>
-        <p>Point your camera at any QR or barcode to instantly identify a product.</p>
+        <p>The camera opens the moment you land on the Billing screen. Point it at any QR or barcode to identify a product instantly.</p>
       </div>
       <div class="onboarding-slide" data-slide="1">
         <div class="onboarding-icon-circle">
@@ -69,7 +69,7 @@
           <span class="onboarding-step-num">2</span>
         </div>
         <h2>Add</h2>
-        <p>New codes ask for a name and price once — then every future scan adds it instantly.</p>
+        <p>New codes ask for a name and price once. Every future scan adds it instantly after that.</p>
       </div>
       <div class="onboarding-slide" data-slide="2">
         <div class="onboarding-icon-circle">
@@ -105,6 +105,9 @@
         </div>
         <div class="header-actions">
           <span class="header-page-title" id="header-page-title">Billing</span>
+          <button class="header-install-btn" id="header-install-btn" aria-label="Install app" title="Install app" hidden>
+            <i class="fa-solid fa-download" aria-hidden="true"></i>
+          </button>
         </div>
       </div>
     </header>
@@ -115,22 +118,19 @@
       <!-- ============ HOME / BILLING DASHBOARD PAGE ============ -->
       <section class="page active" id="page-home" aria-label="Billing Dashboard">
 
-        <!-- Scanner Section -->
+        <!-- Scanner Section: live camera opens instantly, no start button, no loading screen -->
         <div class="scanner-section">
           <div class="scanner-viewport" id="scanner-viewport">
             <div id="scanner-reader"></div>
 
-            <!-- Placeholder before camera starts / permission needed -->
-            <div class="scanner-placeholder" id="scanner-placeholder">
+            <!-- Camera permission needed / unavailable state (shown only if camera access fails) -->
+            <div class="scanner-placeholder" id="scanner-placeholder" hidden>
               <i class="fa-solid fa-camera" aria-hidden="true"></i>
-              <p>Tap the Scan button below to start scanning products with your camera.</p>
-              <button class="btn btn-primary" id="start-scanner-btn">
-                <i class="fa-solid fa-camera-rotate" aria-hidden="true"></i> Start Scanner
-              </button>
+              <p>Camera access is needed to scan products. Please allow camera permission and reload the app.</p>
             </div>
 
             <!-- Top bar: mode toggle + flashlight -->
-            <div class="scanner-topbar" id="scanner-topbar" hidden>
+            <div class="scanner-topbar" id="scanner-topbar">
               <div class="scanner-mode-toggle" role="tablist" aria-label="Scan mode">
                 <button class="scanner-mode-btn active" id="mode-qr-btn" role="tab" aria-selected="true">QR</button>
                 <button class="scanner-mode-btn" id="mode-barcode-btn" role="tab" aria-selected="false">Barcode</button>
@@ -145,9 +145,9 @@
               </div>
             </div>
 
-            <!-- Scan frame overlay -->
-            <div class="scanner-overlay" id="scanner-overlay" hidden>
-              <div class="scan-frame">
+            <!-- Scan frame overlay: adapts proportions per mode (square for QR, rectangular for barcode) -->
+            <div class="scanner-overlay" id="scanner-overlay">
+              <div class="scan-frame mode-qr" id="scan-frame">
                 <span class="scan-corner tl"></span>
                 <span class="scan-corner tr"></span>
                 <span class="scan-corner bl"></span>
@@ -321,6 +321,60 @@
             <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Reset All Data
           </button>
         </div>
+
+        <div class="profile-section-title">User Guide</div>
+        <div class="guide-list">
+          <div class="guide-item">
+            <div class="guide-item-icon"><i class="fa-solid fa-qrcode" aria-hidden="true"></i></div>
+            <div class="guide-item-text">
+              <strong>Scanning products</strong>
+              <p>Open the Scan tab. The camera starts right away, so just point it at a QR code or barcode. A known product is added to the bill instantly. A new code asks for a name and price once, then every future scan of that code adds it automatically.</p>
+            </div>
+          </div>
+          <div class="guide-item">
+            <div class="guide-item-icon"><i class="fa-solid fa-pen" aria-hidden="true"></i></div>
+            <div class="guide-item-text">
+              <strong>Adding items manually</strong>
+              <p>Tap the plus button near the bottom of the Scan screen to add a product without a code. Enter a name, price and quantity, then add it to the bill.</p>
+            </div>
+          </div>
+          <div class="guide-item">
+            <div class="guide-item-icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></div>
+            <div class="guide-item-text">
+              <strong>Building the bill</strong>
+              <p>Adjust quantity with the plus and minus buttons on each item, add a discount or GST percentage if needed, and check the grand total in the summary bar before confirming.</p>
+            </div>
+          </div>
+          <div class="guide-item">
+            <div class="guide-item-icon"><i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i></div>
+            <div class="guide-item-text">
+              <strong>Taking UPI payment</strong>
+              <p>Add your UPI ID in Shop Details above. When confirming a bill, choose UPI as the payment method and a QR code with the exact amount appears for the customer to scan and pay with any UPI app.</p>
+            </div>
+          </div>
+          <div class="guide-item">
+            <div class="guide-item-icon"><i class="fa-solid fa-print" aria-hidden="true"></i></div>
+            <div class="guide-item-text">
+              <strong>Printing a receipt</strong>
+              <p>After a bill is completed, tap Print Receipt on the success screen to open the print dialog and print directly to a connected printer.</p>
+            </div>
+          </div>
+          <div class="guide-item">
+            <div class="guide-item-icon"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></div>
+            <div class="guide-item-text">
+              <strong>Sharing a receipt</strong>
+              <p>Tap Share on WhatsApp on the success screen to send the receipt image straight to a customer's chat.</p>
+            </div>
+          </div>
+          <div class="guide-item">
+            <div class="guide-item-icon"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></div>
+            <div class="guide-item-text">
+              <strong>Saving a receipt</strong>
+              <p>Tap Save as PDF on the success screen to download a clean copy of the receipt for your records.</p>
+            </div>
+          </div>
+        </div>
+
         <div class="profile-app-version">BillNova India · v1.0</div>
       </section>
 
@@ -331,34 +385,15 @@
       <i class="fa-solid fa-plus" aria-hidden="true"></i>
     </button>
 
-    <!-- PWA Install Banner -->
-    <div class="install-banner" id="install-banner" role="dialog" aria-label="Install BillNova India app">
-      <button class="icon-btn install-banner-close tap-sm" id="install-banner-close" aria-label="Dismiss install prompt">
-        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-      </button>
-      <img src="assets/icons/icon-96.png" alt="" class="install-banner-icon">
-      <div class="install-banner-text">
-        <strong>Install BillNova India</strong>
-        <span>Add to home screen for instant offline billing.</span>
-      </div>
-      <div class="install-banner-actions">
-        <button class="btn btn-primary btn-sm" id="install-banner-btn">Install</button>
-      </div>
-    </div>
-
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation: Recent | Scan (default active) | Profile -->
     <nav class="bottom-nav" aria-label="Primary navigation">
       <div class="bottom-nav-inner">
-        <button class="nav-item active" id="nav-home" data-page="home" aria-current="page">
-          <i class="fa-solid fa-house" aria-hidden="true"></i>
-          <span>Home</span>
-        </button>
         <button class="nav-item" id="nav-recent" data-page="recent">
           <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
           <span>Recent</span>
         </button>
         <div class="nav-scan-wrap">
-          <button class="nav-scan-btn" id="nav-scan-btn" aria-label="Open Scan Billing">
+          <button class="nav-scan-btn active" id="nav-scan-btn" data-page="home" aria-label="Billing scanner" aria-current="page">
             <i class="fa-solid fa-qrcode" aria-hidden="true"></i>
           </button>
           <span class="nav-scan-label">Scan</span>
@@ -386,7 +421,7 @@
       </div>
       <p class="field-hint" style="margin-bottom:16px;">
         <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-        Code <strong id="new-product-code">—</strong> scanned for the first time. Save it once — future scans add it instantly.
+        Code <strong id="new-product-code">-</strong> scanned for the first time. Save it once and future scans add it instantly.
       </p>
       <form id="new-product-form">
         <div class="field">
@@ -536,18 +571,18 @@
       <div class="payment-panel" id="payment-panel-upi" hidden>
         <div class="upi-qr-container" id="upi-qr-container"></div>
         <div class="upi-details-card">
-          <div class="upi-detail-row"><span class="upi-detail-label">Shop</span><span class="upi-detail-value" id="upi-detail-shop">—</span></div>
+          <div class="upi-detail-row"><span class="upi-detail-label">Shop</span><span class="upi-detail-value" id="upi-detail-shop">-</span></div>
           <div class="upi-detail-row">
             <span class="upi-detail-label">UPI ID</span>
-            <span class="upi-detail-value" id="upi-detail-id">—</span>
+            <span class="upi-detail-value" id="upi-detail-id">-</span>
             <button type="button" class="icon-btn tap-sm" id="upi-copy-btn" aria-label="Copy UPI ID">
               <i class="fa-regular fa-copy" aria-hidden="true"></i>
             </button>
           </div>
-          <div class="upi-detail-row"><span class="upi-detail-label">Phone</span><span class="upi-detail-value" id="upi-detail-phone">—</span></div>
+          <div class="upi-detail-row"><span class="upi-detail-label">Phone</span><span class="upi-detail-value" id="upi-detail-phone">-</span></div>
           <div class="upi-detail-row upi-detail-amount-row"><span class="upi-detail-label">Amount</span><span class="upi-detail-value upi-amount" id="upi-detail-amount">₹0.00</span></div>
         </div>
-        <p class="field-hint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Scan with any UPI app — the amount is prefilled automatically.</p>
+        <p class="field-hint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Scan with any UPI app. The amount is filled in automatically.</p>
       </div>
 
       <div class="modal-actions modal-actions--single">
@@ -568,7 +603,7 @@
         </svg>
       </div>
       <h2 class="success-title" id="success-title">Bill Completed!</h2>
-      <p class="success-subtitle" id="success-subtitle">Invoice <span id="success-invoice">—</span></p>
+      <p class="success-subtitle" id="success-subtitle">Invoice <span id="success-invoice">-</span></p>
       <div class="success-amount" id="success-amount">₹0.00</div>
 
       <div class="success-actions" id="success-actions">

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Recent Bills
+   BillNova India: Recent Bills
    Lists saved invoices with search + date filter, and lets the user reopen
    (view actions), duplicate into a new cart, or delete a bill.
    ========================================================================== */

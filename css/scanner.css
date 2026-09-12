@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Scanner Interface
+   BillNova India: Scanner Interface
    ========================================================================== */
 
 .scanner-section {
@@ -52,13 +52,36 @@
   aspect-ratio: 1 / 1;
   position: relative;
   border-radius: var(--radius-md);
+  transition: width var(--duration-fast) var(--ease-standard), aspect-ratio var(--duration-fast) var(--ease-standard);
 }
 
+/* QR mode: square frame */
+.scan-frame.mode-qr {
+  width: 68%;
+  aspect-ratio: 1 / 1;
+}
+
+/* Barcode mode: wider rectangular frame */
+.scan-frame.mode-barcode {
+  width: 82%;
+  aspect-ratio: 2 / 1;
+}
+
+/* Green outer border */
 .scan-frame::before {
   content: '';
   position: absolute;
+  inset: -6px;
+  border: 3px solid var(--color-emerald);
+  border-radius: calc(var(--radius-md) + 6px);
+}
+
+/* White inner border */
+.scan-frame::after {
+  content: '';
+  position: absolute;
   inset: 0;
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: var(--radius-md);
 }
 
@@ -81,8 +104,7 @@
   left: 4%;
   right: 4%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--color-emerald), transparent);
-  box-shadow: 0 0 12px 2px rgba(34, 197, 94, 0.8);
+  background: var(--color-emerald);
   animation: scanLaser 2.2s ease-in-out infinite;
 }
 
@@ -155,7 +177,7 @@
 }
 
 .scanner-mode-btn.active {
-  background: var(--gradient-brand);
+  background: var(--color-emerald);
   color: var(--text-inverse);
 }
 
@@ -171,7 +193,7 @@
 }
 
 .scanner-side-controls .icon-btn.on {
-  background: var(--gradient-brand);
+  background: var(--color-emerald);
 }
 
 /* Bottom camera-switch bar */

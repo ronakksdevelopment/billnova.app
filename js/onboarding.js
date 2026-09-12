@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Onboarding (Scan → Add → Bill)
+   BillNova India: Onboarding (Scan → Add → Bill)
    Shown only on first visit; persisted via localStorage flag.
    ========================================================================== */
 
@@ -13,11 +13,20 @@ const Onboarding = (() => {
   let nextBtn = null;
 
   function hasCompletedOnboarding() {
-    return localStorage.getItem(STORAGE_KEY) === 'true';
+    try {
+      return localStorage.getItem(STORAGE_KEY) === 'true';
+    } catch (e) {
+      console.warn('[Onboarding] Failed to read onboarding flag', e);
+      return true; // fail safe: don't block app boot behind onboarding if storage is unavailable
+    }
   }
 
   function markComplete() {
-    localStorage.setItem(STORAGE_KEY, 'true');
+    try {
+      localStorage.setItem(STORAGE_KEY, 'true');
+    } catch (e) {
+      console.warn('[Onboarding] Failed to save onboarding flag', e);
+    }
   }
 
   function init() {

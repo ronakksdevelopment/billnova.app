@@ -1,12 +1,12 @@
 /* ==========================================================================
-   BillNova India — Profile Page
+   BillNova India: Profile Page
    ========================================================================== */
 
 .profile-header-card {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  background: var(--gradient-navy);
+  background: var(--color-navy);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   color: var(--text-inverse);
@@ -17,7 +17,7 @@
   width: 56px;
   height: 56px;
   border-radius: var(--radius-full);
-  background: var(--gradient-brand);
+  background: var(--color-emerald);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,7 +96,7 @@
 }
 
 .swatch-default {
-  background: var(--gradient-brand);
+  background: var(--color-emerald);
 }
 
 .swatch-light {
@@ -120,4 +120,51 @@
   color: var(--text-muted);
   margin-top: var(--space-8);
   padding-bottom: var(--space-4);
+}
+
+/* ---------- User Guide ---------- */
+.guide-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.guide-item {
+  display: flex;
+  gap: var(--space-3);
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.guide-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: rgba(34, 197, 94, 0.10);
+  color: var(--color-emerald-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.guide-item-text {
+  min-width: 0;
+}
+
+.guide-item-text strong {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--color-navy);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.guide-item-text p {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  line-height: 1.5;
 }

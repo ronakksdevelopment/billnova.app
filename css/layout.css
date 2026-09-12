@@ -1,12 +1,12 @@
 /* ==========================================================================
-   BillNova India — Layout: Splash, Header, Onboarding, PWA Banner
+   BillNova India: Layout: Splash, Header, Onboarding, PWA Banner
    ========================================================================== */
 
 /* ---------- Splash Screen ---------- */
 .splash-screen {
   position: fixed;
   inset: 0;
-  background: var(--gradient-navy);
+  background: var(--color-navy);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -25,22 +25,12 @@
   width: 140px;
   height: 140px;
   border-radius: var(--radius-xl);
+  background: var(--color-navy-light);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: var(--space-6);
-  animation: splashPop 0.7s var(--ease-bounce);
-  position: relative;
-}
-
-.splash-logo-wrap::after {
-  content: '';
-  position: absolute;
-  inset: -14px;
-  border-radius: var(--radius-xl);
-  background: var(--gradient-glow);
-  z-index: -1;
-  animation: pulse-glow-soft 2s ease-in-out infinite;
+  animation: splashPop 0.5s var(--ease-bounce);
 }
 
 .splash-logo-wrap img {
@@ -50,14 +40,8 @@
 }
 
 @keyframes splashPop {
-  0% { transform: scale(0.6); opacity: 0; }
-  60% { transform: scale(1.08); opacity: 1; }
+  0% { transform: scale(0.7); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes pulse-glow-soft {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.08); }
 }
 
 .splash-title {
@@ -69,10 +53,7 @@
 }
 
 .splash-title span {
-  background: var(--gradient-brand);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-emerald);
 }
 
 .splash-subtitle {
@@ -98,7 +79,7 @@
   right: 0;
   height: calc(var(--header-height) + var(--safe-top));
   padding-top: var(--safe-top);
-  background: var(--gradient-navy);
+  background: var(--color-navy);
   z-index: var(--z-header);
   display: flex;
   align-items: center;
@@ -159,84 +140,34 @@
   font-weight: 800;
 }
 
-/* ---------- PWA Install Banner ---------- */
-.install-banner {
-  position: fixed;
-  left: var(--space-4);
-  right: var(--space-4);
-  bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + var(--space-3));
-  background: var(--color-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-4);
-  display: flex;
+/* ---------- Header Install Button ---------- */
+.header-install-btn {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
-  z-index: var(--z-toast);
-  max-width: calc(var(--max-content-width) - 32px);
-  margin: 0 auto;
-  transform: translateY(160%);
-  transition: transform var(--duration-slow) var(--ease-bounce), visibility 0s linear var(--duration-slow);
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.install-banner.show {
-  transform: translateY(0);
-  visibility: visible;
-  pointer-events: auto;
-  transition: transform var(--duration-slow) var(--ease-bounce);
-}
-
-.install-banner-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-sm);
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--surface-tint);
+  color: var(--text-inverse);
   flex-shrink: 0;
-  object-fit: contain;
-  background: var(--color-navy);
-  padding: 6px;
+  transition: background var(--duration-fast) var(--ease-standard), transform var(--duration-fast);
 }
 
-.install-banner-text {
-  flex: 1;
-  min-width: 0;
+.header-install-btn i {
+  font-size: 17px;
 }
 
-.install-banner-text strong {
-  display: block;
-  font-size: var(--fs-sm);
-  color: var(--color-navy);
-  font-weight: 800;
-}
-
-.install-banner-text span {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.install-banner-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.install-banner-close {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 28px;
-  height: 28px;
-  min-height: 28px;
-  min-width: 28px;
-  color: var(--text-muted);
+.header-install-btn:active {
+  transform: scale(0.9);
+  background: var(--surface-tint-strong);
 }
 
 /* ---------- Onboarding ---------- */
 .onboarding-overlay {
   position: fixed;
   inset: 0;
-  background: var(--gradient-navy);
+  background: var(--color-navy);
   z-index: 450;
   display: flex;
   flex-direction: column;
@@ -289,8 +220,8 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: var(--surface-tint);
+  border: 1px solid var(--surface-tint-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -300,10 +231,7 @@
 
 .onboarding-icon-circle i {
   font-size: 48px;
-  background: var(--gradient-brand);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-emerald);
 }
 
 .onboarding-step-num {
@@ -313,14 +241,13 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--gradient-brand);
+  background: var(--color-emerald);
   color: var(--text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
   font-size: var(--fs-sm);
-  box-shadow: var(--shadow-glow-teal);
 }
 
 .onboarding-slide h2 {

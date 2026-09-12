@@ -1,6 +1,6 @@
 /* ==========================================================================
-   BillNova India — Design Tokens
-   Premium color system + spacing + typography scale
+   BillNova India: Design Tokens
+   Premium solid-color system + spacing + typography scale
    ========================================================================== */
 
 :root {
@@ -20,19 +20,12 @@
   --color-danger-dark: #DC2626;
   --color-warning: #F59E0B;
 
-  /* Gradients */
-  --gradient-brand: linear-gradient(135deg, var(--color-emerald) 0%, var(--color-teal) 100%);
-  --gradient-navy: linear-gradient(180deg, #0A2050 0%, #071A3D 100%);
-  --gradient-glow: radial-gradient(circle, rgba(34,197,94,0.35) 0%, rgba(45,212,191,0.15) 60%, transparent 100%);
-
-  /* Surfaces (glass) */
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-bg-strong: rgba(255, 255, 255, 0.10);
-  --glass-border: rgba(255, 255, 255, 0.14);
-  --glass-blur: 18px;
-
-  --surface-card: rgba(255, 255, 255, 0.97);
-  --surface-card-dark: rgba(14, 42, 92, 0.55);
+  /* Solid surfaces (flat, no gradients or blur) */
+  --surface-card: #FFFFFF;
+  --surface-dark: var(--color-navy);
+  --surface-overlay: rgba(7, 26, 61, 0.55);
+  --surface-tint: rgba(255, 255, 255, 0.12);
+  --surface-tint-strong: rgba(255, 255, 255, 0.18);
 
   /* Text */
   --text-primary: #0B1220;
@@ -59,12 +52,10 @@
   --space-10: 40px;
   --space-12: 48px;
 
-  /* Shadows */
+  /* Shadows (soft flat elevation only, no colored glows) */
   --shadow-sm: 0 2px 8px rgba(7, 26, 61, 0.08);
-  --shadow-md: 0 8px 24px rgba(7, 26, 61, 0.12);
-  --shadow-lg: 0 16px 40px rgba(7, 26, 61, 0.18);
-  --shadow-glow-emerald: 0 0 0 6px rgba(34, 197, 94, 0.15), 0 8px 28px rgba(34, 197, 94, 0.45);
-  --shadow-glow-teal: 0 0 24px rgba(45, 212, 191, 0.5);
+  --shadow-md: 0 8px 20px rgba(7, 26, 61, 0.10);
+  --shadow-lg: 0 12px 32px rgba(7, 26, 61, 0.14);
 
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -84,12 +75,12 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  /* Motion */
+  /* Motion: quick, snappy interactions */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --duration-fast: 150ms;
-  --duration-base: 250ms;
-  --duration-slow: 400ms;
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
 
   /* Z-index scale */
   --z-header: 100;

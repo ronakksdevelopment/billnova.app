@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Cart / Billing List + Sticky Summary
+   BillNova India: Cart / Billing List + Sticky Summary
    ========================================================================== */
 
 .cart-list {
@@ -38,7 +38,7 @@
   width: 44px;
   height: 44px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(45,212,191,0.12));
+  background: rgba(34, 197, 94, 0.10);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,7 +202,7 @@
 .billing-summary {
   position: sticky;
   bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + var(--space-3));
-  background: var(--gradient-navy);
+  background: var(--color-navy);
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
   color: var(--text-inverse);
@@ -248,10 +248,7 @@
 .summary-grand-total .value {
   font-size: var(--fs-2xl);
   font-weight: 800;
-  background: var(--gradient-brand);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-emerald);
 }
 
 /* Empty cart state inside billing page */

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Toast Notification System
+   BillNova India: Toast Notification System
    ========================================================================== */
 
 const Toast = (() => {

@@ -53,6 +53,7 @@ const APP_SHELL = [
   './assets/icons/icon-512.png',
   './assets/icons/maskable-192.png',
   './assets/icons/maskable-512.png',
+  './assets/icons/apple-touch-icon.png',
   './vendor/html5-qrcode.min.js',
   './vendor/JsBarcode.all.min.js',
   './vendor/qrcode.min.js',

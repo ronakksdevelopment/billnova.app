@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India — Loading Overlay Helper
+   BillNova India: Loading Overlay Helper
    ========================================================================== */
 
 const Loading = (() => {

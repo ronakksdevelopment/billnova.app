@@ -1,54 +1,45 @@
 /* ==========================================================================
-   BillNova India — PWA Install Banner Handling
+   BillNova India: PWA Install Button Handling
+   Drives a single small download/install icon button in the header, shown
+   only when the browser reports the app is installable.
    ========================================================================== */
 
 const PwaInstall = (() => {
-  const DISMISS_KEY = 'billnova_install_dismissed';
   let deferredPrompt = null;
-  let bannerEl = null;
+  let installBtn = null;
 
   function init() {
-    bannerEl = document.getElementById('install-banner');
-    const installBtn = document.getElementById('install-banner-btn');
-    const closeBtn = document.getElementById('install-banner-close');
+    installBtn = document.getElementById('header-install-btn');
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      if (!wasDismissed()) showBanner();
+      showButton();
     });
 
     window.addEventListener('appinstalled', () => {
-      hideBanner();
+      hideButton();
+      deferredPrompt = null;
       Toast.success('BillNova India installed successfully!');
     });
 
-    installBtn.addEventListener('click', async () => {
+    installBtn?.addEventListener('click', async () => {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
-        hideBanner();
+        hideButton();
       }
       deferredPrompt = null;
     });
-
-    closeBtn.addEventListener('click', () => {
-      localStorage.setItem(DISMISS_KEY, 'true');
-      hideBanner();
-    });
   }
 
-  function wasDismissed() {
-    return localStorage.getItem(DISMISS_KEY) === 'true';
+  function showButton() {
+    if (installBtn) installBtn.hidden = false;
   }
 
-  function showBanner() {
-    if (bannerEl) bannerEl.classList.add('show');
-  }
-
-  function hideBanner() {
-    if (bannerEl) bannerEl.classList.remove('show');
+  function hideButton() {
+    if (installBtn) installBtn.hidden = true;
   }
 
   return { init };
