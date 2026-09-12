@@ -133,8 +133,12 @@
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
+/* While holding, the label previews "Hold for Menu" — keep it in the same
+   emerald brand color as the default "Scan" label (not red/danger, which
+   incorrectly signaled an error state here) so it just looks like an
+   in-progress hint rather than a warning. */
 .nav-scan-btn.holding ~ .nav-scan-label {
-  color: var(--color-danger);
+  color: var(--color-emerald-dark);
 }
 
 @media (max-width: 340px) {

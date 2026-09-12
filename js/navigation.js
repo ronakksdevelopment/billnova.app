@@ -17,7 +17,14 @@ const Navigation = (() => {
   function init() {
     document.getElementById('nav-recent').addEventListener('click', () => goToPage('recent'));
     document.getElementById('nav-profile').addEventListener('click', () => goToPage('profile'));
-    document.getElementById('nav-scan-btn').addEventListener('click', () => goToPage('home'));
+    // The center Scan button is intentionally NOT wired here. It has both a
+    // single-tap (switch to Billing) and a press-and-hold (quick actions)
+    // behavior, and having two different modules independently attach click
+    // listeners to the same button is exactly what caused the button to
+    // become unreliable (race between which listener runs first, on which
+    // phase, on which device). QuickActions owns 100% of the interaction
+    // for this one button and calls Navigation.goToPage('home') itself on
+    // a genuine short tap. See quick-actions.js.
   }
 
   /**

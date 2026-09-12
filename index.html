@@ -148,6 +148,13 @@
           <span class="quick-action-desc">Pause the live scanner</span>
         </span>
       </button>
+      <button class="quick-action-item" data-quick-action="toggle-flashlight" role="menuitem">
+        <span class="quick-action-icon"><i class="fa-solid fa-bolt-lightning" aria-hidden="true"></i></span>
+        <span class="quick-action-text">
+          <span class="quick-action-title">Turn On Flashlight</span>
+          <span class="quick-action-desc">Light up the camera for dim barcodes</span>
+        </span>
+      </button>
       <button class="quick-action-item" data-quick-action="reenable-camera" id="quick-action-reenable-camera" role="menuitem" hidden>
         <span class="quick-action-icon quick-action-icon--warn"><i class="fa-solid fa-camera-rotate" aria-hidden="true"></i></span>
         <span class="quick-action-text">
@@ -499,7 +506,7 @@
           <span>Recent</span>
         </button>
         <div class="nav-scan-wrap">
-          <button class="nav-scan-btn active" id="nav-scan-btn" data-page="home" aria-label="Billing scanner. Press and hold for quick actions." aria-current="page">
+          <button class="nav-scan-btn active" id="nav-scan-btn" data-page="home" aria-label="Billing scanner. Tap to open, press and hold 1 second for quick actions." aria-current="page">
             <i class="fa-solid fa-qrcode" aria-hidden="true"></i>
           </button>
           <span class="nav-scan-label">Scan</span>

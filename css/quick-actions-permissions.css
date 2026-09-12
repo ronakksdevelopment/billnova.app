@@ -291,6 +291,12 @@
   color: #dc2626;
 }
 
+/* Flashlight action is a no-op while the camera is off; dim it so that's clear. */
+.quick-action-item--disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
 /* Visual feedback while the scan button is being held, before the sheet opens */
 .nav-scan-btn.holding {
   transform: translateY(-22px) scale(0.94);

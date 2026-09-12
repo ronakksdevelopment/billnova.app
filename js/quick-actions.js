@@ -1,12 +1,19 @@
 /* ==========================================================================
-   BillNova India: Scan Button Quick Actions (long-press)
-   Press-and-hold the center Scan button in the bottom nav to open a bottom
-   sheet with shortcuts, without changing its normal single-tap behavior
-   (which still navigates to the Billing screen via Navigation).
+   BillNova India: Scan Button (tap-to-switch + long-press quick actions)
+   Owns 100% of the interaction on the center Scan button:
+     - Short tap  -> Navigation.goToPage('home')   (normal nav behavior)
+     - Hold 1s    -> opens the quick actions bottom sheet
+   Everything lives in ONE pointer-event based state machine. Earlier builds
+   split this across Navigation's own click listener AND this module's
+   listeners on the same button, which raced against each other (whichever
+   fired first won) and made the button unreliable, especially when
+   navigating in from Recent/Profile. Now Navigation has no listener on this
+   button at all - this is the single source of truth.
    ========================================================================== */
 
 const QuickActions = (() => {
-  const LONG_PRESS_MS = 500;
+  const LONG_PRESS_MS = 1000; // press-and-hold duration required to open quick actions
+  const MOVE_CANCEL_PX = 12; // finger/mouse drift beyond this cancels the press (avoids accidental triggers while scrolling)
 
   let scanBtn = null;
   let scanLabelEl = null;
@@ -14,6 +21,9 @@ const QuickActions = (() => {
   let sheetEl = null;
   let pressTimer = null;
   let longPressTriggered = false;
+  let pressActive = false;
+  let startX = 0;
+  let startY = 0;
   let defaultLabelText = 'Scan';
 
   function init() {
@@ -21,36 +31,24 @@ const QuickActions = (() => {
     scanLabelEl = document.querySelector('.nav-scan-label');
     backdropEl = document.getElementById('quick-actions-backdrop');
     sheetEl = document.getElementById('quick-actions-sheet');
+    if (!scanBtn || !backdropEl || !sheetEl) return;
     if (scanLabelEl) defaultLabelText = scanLabelEl.textContent;
 
-    // Pointer events cover mouse, touch, and pen in one listener set. Needs
-    // touch-action: none (set in CSS) on the button itself, or mobile
-    // browsers intercept the gesture for scrolling/panning before our JS
-    // ever sees pointerdown, which is what made long-press unreliable on
-    // touch devices specifically.
+    // Pointer events alone cover mouse, touch, and pen consistently in a
+    // single listener set. Mixing pointer AND touch listeners on the same
+    // element (as before) caused each gesture to be handled twice on real
+    // touchscreens, which is a common source of "sometimes works, sometimes
+    // doesn't" bugs. touch-action: none in CSS keeps the browser from
+    // hijacking the gesture for scrolling before pointerdown fires.
     scanBtn.addEventListener('pointerdown', onPressStart);
+    scanBtn.addEventListener('pointermove', onPressMove);
     scanBtn.addEventListener('pointerup', onPressEnd);
-    scanBtn.addEventListener('pointerleave', cancelPress);
-    scanBtn.addEventListener('pointercancel', cancelPress);
-
-    // Belt-and-braces for older/quirkier mobile browsers that don't fire
-    // pointer events consistently for long-press: mirror the same
-    // start/end tracking on touch events too. Deliberately does NOT call
-    // preventDefault() on touchstart — doing so was suppressing the
-    // browser's synthetic click event for ordinary short taps as well,
-    // which is what broke single-tap navigation to the Billing screen on
-    // touch devices. The native long-press context menu is blocked via
-    // the 'contextmenu' listener below instead, so nothing is lost.
-    scanBtn.addEventListener('touchstart', onPressStart, { passive: true });
-    scanBtn.addEventListener('touchend', onPressEnd);
-    scanBtn.addEventListener('touchcancel', cancelPress);
+    scanBtn.addEventListener('pointerleave', onPressCancel);
+    scanBtn.addEventListener('pointercancel', onPressCancel);
 
     // Block the native long-press context menu (e.g. "Open link", image
     // save sheet) from appearing over the scan button on mobile.
     scanBtn.addEventListener('contextmenu', (e) => e.preventDefault());
-
-    // Suppress the normal click-to-navigate only when a long-press just fired.
-    scanBtn.addEventListener('click', onClickCapture, true);
 
     backdropEl.addEventListener('click', (e) => {
       if (e.target === backdropEl) close();
@@ -61,58 +59,77 @@ const QuickActions = (() => {
     });
   }
 
-  function onPressStart() {
+  function onPressStart(e) {
+    // Only respond to the primary button/touch/pen contact.
+    if (e.button !== undefined && e.button !== 0) return;
+
+    pressActive = true;
     longPressTriggered = false;
+    startX = e.clientX;
+    startY = e.clientY;
+
     clearTimeout(pressTimer);
     pressTimer = setTimeout(() => {
+      if (!pressActive) return;
       longPressTriggered = true;
+      pressActive = false;
       Utils.vibrate([20]);
+      scanBtn.classList.remove('holding');
+      restoreDefaultLabel();
       open();
     }, LONG_PRESS_MS);
+
     scanBtn.classList.add('holding');
     setHoldingLabel();
   }
 
-  function onPressEnd() {
-    clearTimeout(pressTimer);
-    scanBtn.classList.remove('holding');
-    restoreDefaultLabel();
+  function onPressMove(e) {
+    if (!pressActive) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (Math.sqrt(dx * dx + dy * dy) > MOVE_CANCEL_PX) {
+      onPressCancel();
+    }
   }
 
-  function cancelPress() {
+  function onPressEnd() {
+    const wasLongPress = longPressTriggered;
     clearTimeout(pressTimer);
+    pressActive = false;
+    scanBtn.classList.remove('holding');
+    restoreDefaultLabel();
+
+    // A short tap (press ended before the long-press timer fired) switches
+    // to the Billing screen, same as any other bottom-nav item. If the
+    // long-press already opened the sheet, the release shouldn't also
+    // navigate.
+    if (!wasLongPress) {
+      Navigation.goToPage('home');
+    }
+    longPressTriggered = false;
+  }
+
+  function onPressCancel() {
+    clearTimeout(pressTimer);
+    pressActive = false;
+    longPressTriggered = false;
     scanBtn.classList.remove('holding');
     restoreDefaultLabel();
   }
 
   /**
    * While the button is being held (before the sheet opens), swap the
-   * "Scan" label under the button for a live preview of what releasing
-   * into the sheet's camera toggle would currently do — checked fresh off
-   * Scanner.isCameraOn() every press, so it always matches the camera's
-   * actual current state rather than a guess.
+   * "Scan" label under the button for a live hint that a menu is coming,
+   * so the interaction reads as "keep holding" rather than looking broken.
    */
   function setHoldingLabel() {
     if (!scanLabelEl) return;
-    if (window.Scanner && Scanner.isPermissionRevoked && Scanner.isPermissionRevoked()) {
-      scanLabelEl.textContent = 'Enable Camera';
-      return;
-    }
-    scanLabelEl.textContent = 'Toggle Camera';
+    scanLabelEl.textContent = 'Hold for Menu';
   }
 
   function restoreDefaultLabel() {
     if (!scanLabelEl) return;
     scanLabelEl.textContent = defaultLabelText;
-  }
-
-  function onClickCapture(e) {
-    if (longPressTriggered) {
-      // The long-press already handled this interaction; don't also navigate.
-      e.preventDefault();
-      e.stopPropagation();
-      longPressTriggered = false;
-    }
   }
 
   function open() {
@@ -132,14 +149,15 @@ const QuickActions = (() => {
   }
 
   /**
-   * Updates the "Switch to Barcode/QR" label and the camera row's icon to
-   * reflect current Scanner state each time the sheet opens. The camera
-   * row's title stays a static "Toggle Camera" regardless of state — only
-   * its icon (eye / eye-slash) reflects on/off.
+   * Updates action labels/icons to reflect current Scanner state each time
+   * the sheet opens: the "Switch to Barcode/QR" label, the camera row's
+   * icon (eye / eye-slash), the flashlight row's icon/label, and whether
+   * "Re-enable Camera Access" needs to replace the normal camera toggle.
    */
   function refreshLabels() {
     const modeItem = sheetEl.querySelector('[data-quick-action="toggle-mode"]');
     const cameraItem = sheetEl.querySelector('[data-quick-action="toggle-camera"]');
+    const flashItem = sheetEl.querySelector('[data-quick-action="toggle-flashlight"]');
     const reenableItem = document.getElementById('quick-action-reenable-camera');
 
     if (modeItem && window.Scanner) {
@@ -154,6 +172,17 @@ const QuickActions = (() => {
         on ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
     }
 
+    if (flashItem && window.Scanner) {
+      const camOn = Scanner.isCameraOn && Scanner.isCameraOn();
+      const torchOn = Scanner.isTorchOn && Scanner.isTorchOn();
+      flashItem.querySelector('.quick-action-icon i').className =
+        torchOn ? 'fa-solid fa-bolt' : 'fa-solid fa-bolt-lightning';
+      flashItem.querySelector('.quick-action-title').textContent =
+        torchOn ? 'Turn Off Flashlight' : 'Turn On Flashlight';
+      // Flashlight needs the camera actively running to do anything useful.
+      flashItem.classList.toggle('quick-action-item--disabled', !camOn);
+    }
+
     // "Re-enable Camera Access" only surfaces once permission has actually
     // been revoked mid-session (see Scanner.isPermissionRevoked). Hiding it
     // otherwise keeps the sheet from being cluttered with an action that
@@ -162,6 +191,7 @@ const QuickActions = (() => {
       const revoked = Scanner.isPermissionRevoked();
       reenableItem.hidden = !revoked;
       if (cameraItem) cameraItem.hidden = revoked;
+      if (flashItem) flashItem.hidden = revoked;
     }
   }
 
@@ -176,17 +206,18 @@ const QuickActions = (() => {
 
     // Navigate to the Billing screen first for actions that need the
     // scanner/cart visible, matching what a normal tap on Scan would do.
-    const wasOnHome = !window.Navigation || document.getElementById('page-home')?.classList.contains('active');
-    if (window.Navigation) Navigation.goToPage('home');
+    const wasOnHome = document.getElementById('page-home')?.classList.contains('active');
+    Navigation.goToPage('home');
 
     // Navigating home may trigger Scanner.resume(), which is async and
     // sets an internal isStarting/isStopping guard. Actions that click a
-    // scanner control (toggle-camera, toggle-mode) must wait for that to
-    // settle first, or the click silently no-ops while the guard is up —
-    // this was why the quick-action camera toggle appeared "broken" when
-    // triggered from the Profile/Recent screens.
+    // scanner control (toggle-camera, toggle-mode, toggle-flashlight) must
+    // wait for that to settle first, or the click silently no-ops while the
+    // guard is up - this was why the quick-action camera toggle appeared
+    // "broken" when triggered from the Profile/Recent screens.
+    const scannerActions = ['toggle-camera', 'toggle-mode', 'toggle-flashlight'];
     const runAction = () => runQuickAction(action);
-    if (!wasOnHome && (action === 'toggle-camera' || action === 'toggle-mode')) {
+    if (!wasOnHome && scannerActions.includes(action)) {
       waitForScannerIdle(runAction);
     } else {
       runAction();
@@ -223,6 +254,11 @@ const QuickActions = (() => {
       }
       case 'toggle-camera': {
         document.getElementById('camera-toggle-btn')?.click();
+        break;
+      }
+      case 'toggle-flashlight': {
+        if (window.Scanner && Scanner.isCameraOn && !Scanner.isCameraOn()) break;
+        document.getElementById('flashlight-btn')?.click();
         break;
       }
       case 'reenable-camera': {

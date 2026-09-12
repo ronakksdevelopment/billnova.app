@@ -658,6 +658,10 @@ const Scanner = (() => {
     return isStarting || isStopping;
   }
 
+  function isTorchEnabled() {
+    return isTorchOn;
+  }
+
   return {
     init,
     start,
@@ -665,6 +669,7 @@ const Scanner = (() => {
     resume,
     getMode,
     isCameraOn,
+    isTorchOn: isTorchEnabled,
     isBusy,
     isPermissionRevoked,
     requestPermissionAndRestart,
