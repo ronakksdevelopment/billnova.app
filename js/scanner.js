@@ -25,7 +25,7 @@ const Scanner = (() => {
 
   // Elements
   let viewportEl, placeholderEl, topbarEl, overlayEl, flashlightBtn, cameraSwitchBtn, cameraToggleBtn;
-  let modeQrBtn, modeBarcodeBtn, successFlashEl, scanFrameEl, placeholderTextEl, placeholderIconEl;
+  let modeQrBtn, modeBarcodeBtn, successFlashEl, scanFrameEl, placeholderTextEl, placeholderIconEl, modeToggleEl;
 
   const QR_CONFIG = {
     fps: 12,
@@ -60,6 +60,7 @@ const Scanner = (() => {
     placeholderIconEl = placeholderEl.querySelector('i');
     placeholderTextEl = placeholderEl.querySelector('p');
     topbarEl = document.getElementById('scanner-topbar');
+    modeToggleEl = document.querySelector('.scanner-mode-toggle');
     overlayEl = document.getElementById('scanner-overlay');
     flashlightBtn = document.getElementById('flashlight-btn');
     cameraSwitchBtn = document.getElementById('camera-switch-btn');
@@ -131,8 +132,15 @@ const Scanner = (() => {
 
   function showPlaceholder(reason) {
     placeholderEl.hidden = false;
-    topbarEl.hidden = true;
     overlayEl.hidden = true;
+
+    // Keep the topbar itself visible so the eye button always stays
+    // reachable, but hide the mode toggle / flashlight / camera-switch
+    // controls since they don't apply while the camera is off.
+    topbarEl.hidden = false;
+    if (modeToggleEl) modeToggleEl.hidden = true;
+    if (flashlightBtn) flashlightBtn.hidden = true;
+    if (cameraSwitchBtn) cameraSwitchBtn.hidden = true;
 
     if (reason === 'off') {
       if (placeholderIconEl) placeholderIconEl.className = 'fa-solid fa-eye-slash';
@@ -147,6 +155,10 @@ const Scanner = (() => {
     placeholderEl.hidden = true;
     topbarEl.hidden = false;
     overlayEl.hidden = false;
+    if (modeToggleEl) modeToggleEl.hidden = false;
+    if (flashlightBtn) flashlightBtn.hidden = false;
+    // camera-switch stays governed by availableCameras.length, restored in start()/switchCamera()
+    if (cameraSwitchBtn) cameraSwitchBtn.hidden = availableCameras.length < 2;
   }
 
   function setCameraToggleUI(enabled) {

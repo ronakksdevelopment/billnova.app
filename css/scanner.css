@@ -31,10 +31,14 @@
   object-fit: cover !important;
 }
 
-/* Hide default html5-qrcode UI chrome we don't want */
+/* Hide default html5-qrcode UI chrome we don't want, including its own
+   built-in shaded scan-region box (qr-shaded-region), which otherwise
+   renders as a second, overlapping border on top of our custom .scan-frame. */
 #scanner-reader img,
 #scanner-reader__dashboard,
-#scanner-reader__header_message {
+#scanner-reader__header_message,
+#scanner-reader__scan_region > div#qr-shaded-region,
+#qr-shaded-region {
   display: none !important;
 }
 
