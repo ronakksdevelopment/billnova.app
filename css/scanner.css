@@ -1,0 +1,240 @@
+/* ==========================================================================
+   BillNova India — Scanner Interface
+   ========================================================================== */
+
+.scanner-section {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-navy);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-lg);
+}
+
+.scanner-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-height: 420px;
+  background: #000;
+  overflow: hidden;
+}
+
+#scanner-reader {
+  width: 100%;
+  height: 100%;
+}
+
+#scanner-reader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* Hide default html5-qrcode UI chrome we don't want */
+#scanner-reader img,
+#scanner-reader__dashboard,
+#scanner-reader__header_message {
+  display: none !important;
+}
+
+.scanner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.scan-frame {
+  width: 68%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  border-radius: var(--radius-md);
+}
+
+.scan-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-md);
+}
+
+.scan-corner {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-color: var(--color-emerald);
+  border-style: solid;
+  border-width: 0;
+}
+
+.scan-corner.tl { top: -3px; left: -3px; border-top-width: 5px; border-left-width: 5px; border-top-left-radius: var(--radius-sm); }
+.scan-corner.tr { top: -3px; right: -3px; border-top-width: 5px; border-right-width: 5px; border-top-right-radius: var(--radius-sm); }
+.scan-corner.bl { bottom: -3px; left: -3px; border-bottom-width: 5px; border-left-width: 5px; border-bottom-left-radius: var(--radius-sm); }
+.scan-corner.br { bottom: -3px; right: -3px; border-bottom-width: 5px; border-right-width: 5px; border-bottom-right-radius: var(--radius-sm); }
+
+.scan-laser {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-emerald), transparent);
+  box-shadow: 0 0 12px 2px rgba(34, 197, 94, 0.8);
+  animation: scanLaser 2.2s ease-in-out infinite;
+}
+
+@keyframes scanLaser {
+  0% { top: 4%; }
+  50% { top: 94%; }
+  100% { top: 4%; }
+}
+
+.scanner-hint {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--text-inverse);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Success flash */
+.scan-success-flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(34, 197, 94, 0.28);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scan-success-flash.flash {
+  animation: successFlash 0.5s ease-out;
+}
+
+@keyframes successFlash {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Top controls row over camera */
+.scanner-topbar {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+}
+
+.scanner-mode-toggle {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  gap: 2px;
+}
+
+.scanner-mode-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.scanner-mode-btn.active {
+  background: var(--gradient-brand);
+  color: var(--text-inverse);
+}
+
+.scanner-side-controls {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.scanner-side-controls .icon-btn {
+  background: rgba(0, 0, 0, 0.4);
+  width: 40px;
+  height: 40px;
+}
+
+.scanner-side-controls .icon-btn.on {
+  background: var(--gradient-brand);
+}
+
+/* Bottom camera-switch bar */
+.scanner-bottombar {
+  position: absolute;
+  bottom: var(--space-3);
+  right: var(--space-3);
+  z-index: 2;
+}
+
+.scanner-bottombar .icon-btn {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Scanner placeholder / permission state */
+.scanner-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+  color: var(--text-inverse);
+  gap: var(--space-3);
+}
+
+.scanner-placeholder i {
+  font-size: 44px;
+  color: var(--color-teal);
+  opacity: 0.85;
+}
+
+.scanner-placeholder p {
+  font-size: var(--fs-sm);
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 260px;
+}
+
+/* Manual add FAB (floating plus, above cart) */
+.manual-add-fab {
+  position: fixed;
+  right: var(--space-5);
+  bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + var(--space-6));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-navy);
+  color: var(--text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-fab);
+  border: 3px solid var(--color-teal);
+  transition: transform var(--duration-fast) var(--ease-bounce);
+}
+
+.manual-add-fab i {
+  font-size: 22px;
+}
+
+.manual-add-fab:active {
+  transform: scale(0.9);
+}

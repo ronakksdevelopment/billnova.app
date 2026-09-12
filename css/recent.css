@@ -1,0 +1,148 @@
+/* ==========================================================================
+   BillNova India — Recent Bills Page
+   ========================================================================== */
+
+.recent-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.recent-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.recent-search-wrap i {
+  position: absolute;
+  left: 16px;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.recent-search-input {
+  width: 100%;
+  padding: 14px 16px 14px 42px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-soft-gray);
+  background: var(--color-white);
+  font-size: var(--fs-sm);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.recent-search-input:focus {
+  border-color: var(--color-teal);
+  outline: none;
+}
+
+.recent-filter-row {
+  display: flex;
+}
+
+.recent-date-filter {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-soft-gray);
+  background: var(--color-white);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-sm);
+  animation: fadeInUp var(--duration-base) var(--ease-standard);
+}
+
+.recent-item-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.recent-item-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-emerald-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: var(--fs-md);
+}
+
+.recent-item-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.recent-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.recent-item-invoice {
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--color-navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-item-amount {
+  font-weight: 800;
+  font-size: var(--fs-md);
+  color: var(--color-emerald-dark);
+  white-space: nowrap;
+}
+
+.recent-item-meta {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-item-date {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.recent-item-actions {
+  display: flex;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.recent-item-actions .icon-btn {
+  width: 38px;
+  height: 38px;
+  background: var(--color-soft-gray);
+  color: var(--text-secondary);
+}

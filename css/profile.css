@@ -1,0 +1,123 @@
+/* ==========================================================================
+   BillNova India — Profile Page
+   ========================================================================== */
+
+.profile-header-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--gradient-navy);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  color: var(--text-inverse);
+  margin-bottom: var(--space-6);
+}
+
+.profile-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xl);
+  flex-shrink: 0;
+}
+
+.profile-header-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.profile-header-text strong {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-header-text span {
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2px;
+}
+
+.profile-section-title {
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-emerald-dark);
+  margin: var(--space-6) 0 var(--space-3);
+}
+
+.profile-section-title:first-of-type {
+  margin-top: 0;
+}
+
+.theme-swatch-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.theme-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-2);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-soft-gray);
+  background: var(--color-white);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: border-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast);
+}
+
+.theme-swatch.active {
+  border-color: var(--color-emerald);
+  color: var(--color-navy);
+}
+
+.theme-swatch:active {
+  transform: scale(0.96);
+}
+
+.swatch-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  display: block;
+}
+
+.swatch-default {
+  background: var(--gradient-brand);
+}
+
+.swatch-light {
+  background: #F3F4F6;
+  border: 2px solid #D1D5DB;
+}
+
+.swatch-dark {
+  background: #0B1220;
+}
+
+.profile-data-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.profile-app-version {
+  text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-8);
+  padding-bottom: var(--space-4);
+}

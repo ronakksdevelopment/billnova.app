@@ -1,0 +1,102 @@
+/* ==========================================================================
+   BillNova India — Design Tokens
+   Premium color system + spacing + typography scale
+   ========================================================================== */
+
+:root {
+  /* Brand Colors */
+  --color-navy: #071A3D;
+  --color-navy-light: #0E2A5C;
+  --color-navy-lighter: #163A73;
+  --color-emerald: #22C55E;
+  --color-emerald-dark: #16A34A;
+  --color-teal: #2DD4BF;
+  --color-teal-dark: #14B8A6;
+  --color-white: #FFFFFF;
+  --color-soft-gray: #E5E7EB;
+  --color-gray-500: #6B7280;
+  --color-gray-400: #9CA3AF;
+  --color-danger: #EF4444;
+  --color-danger-dark: #DC2626;
+  --color-warning: #F59E0B;
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, var(--color-emerald) 0%, var(--color-teal) 100%);
+  --gradient-navy: linear-gradient(180deg, #0A2050 0%, #071A3D 100%);
+  --gradient-glow: radial-gradient(circle, rgba(34,197,94,0.35) 0%, rgba(45,212,191,0.15) 60%, transparent 100%);
+
+  /* Surfaces (glass) */
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-blur: 18px;
+
+  --surface-card: rgba(255, 255, 255, 0.97);
+  --surface-card-dark: rgba(14, 42, 92, 0.55);
+
+  /* Text */
+  --text-primary: #0B1220;
+  --text-secondary: #4B5563;
+  --text-inverse: #FFFFFF;
+  --text-muted: #9CA3AF;
+
+  /* Radius */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 999px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(7, 26, 61, 0.08);
+  --shadow-md: 0 8px 24px rgba(7, 26, 61, 0.12);
+  --shadow-lg: 0 16px 40px rgba(7, 26, 61, 0.18);
+  --shadow-glow-emerald: 0 0 0 6px rgba(34, 197, 94, 0.15), 0 8px 28px rgba(34, 197, 94, 0.45);
+  --shadow-glow-teal: 0 0 24px rgba(45, 212, 191, 0.5);
+
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-base: 16px;
+  --fs-md: 18px;
+  --fs-lg: 20px;
+  --fs-xl: 24px;
+  --fs-2xl: 28px;
+  --fs-3xl: 34px;
+
+  /* Layout */
+  --header-height: 64px;
+  --bottom-nav-height: 78px;
+  --max-content-width: 560px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+
+  /* Z-index scale */
+  --z-header: 100;
+  --z-bottom-nav: 200;
+  --z-fab: 250;
+  --z-modal-backdrop: 300;
+  --z-modal: 310;
+  --z-toast: 400;
+  --z-splash: 500;
+}

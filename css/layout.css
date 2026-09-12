@@ -1,0 +1,367 @@
+/* ==========================================================================
+   BillNova India — Layout: Splash, Header, Onboarding, PWA Banner
+   ========================================================================== */
+
+/* ---------- Splash Screen ---------- */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--gradient-navy);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-splash);
+  transition: opacity var(--duration-slow) var(--ease-standard), visibility var(--duration-slow);
+}
+
+.splash-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-logo-wrap {
+  width: 140px;
+  height: 140px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-6);
+  animation: splashPop 0.7s var(--ease-bounce);
+  position: relative;
+}
+
+.splash-logo-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: var(--radius-xl);
+  background: var(--gradient-glow);
+  z-index: -1;
+  animation: pulse-glow-soft 2s ease-in-out infinite;
+}
+
+.splash-logo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@keyframes splashPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse-glow-soft {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.08); }
+}
+
+.splash-title {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  color: var(--text-inverse);
+  letter-spacing: 0.01em;
+  margin-bottom: var(--space-2);
+}
+
+.splash-title span {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.splash-subtitle {
+  font-size: var(--fs-sm);
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: var(--space-8);
+}
+
+.splash-loader {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--color-emerald);
+  animation: spin 0.9s linear infinite;
+}
+
+/* ---------- Header ---------- */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--header-height) + var(--safe-top));
+  padding-top: var(--safe-top);
+  background: var(--gradient-navy);
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 12px rgba(7, 26, 61, 0.2);
+}
+
+.app-header-inner {
+  width: 100%;
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.header-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: contain;
+}
+
+.header-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.header-brand-text strong {
+  color: var(--text-inverse);
+  font-size: var(--fs-md);
+  font-weight: 800;
+}
+
+.header-brand-text small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.header-page-title {
+  color: var(--text-inverse);
+  font-size: var(--fs-lg);
+  font-weight: 800;
+}
+
+/* ---------- PWA Install Banner ---------- */
+.install-banner {
+  position: fixed;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + var(--space-3));
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  z-index: var(--z-toast);
+  max-width: calc(var(--max-content-width) - 32px);
+  margin: 0 auto;
+  transform: translateY(160%);
+  transition: transform var(--duration-slow) var(--ease-bounce), visibility 0s linear var(--duration-slow);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.install-banner.show {
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+  transition: transform var(--duration-slow) var(--ease-bounce);
+}
+
+.install-banner-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  object-fit: contain;
+  background: var(--color-navy);
+  padding: 6px;
+}
+
+.install-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.install-banner-text strong {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--color-navy);
+  font-weight: 800;
+}
+
+.install-banner-text span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.install-banner-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.install-banner-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  min-width: 28px;
+  color: var(--text-muted);
+}
+
+/* ---------- Onboarding ---------- */
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--gradient-navy);
+  z-index: 450;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--safe-top) + var(--space-6)) var(--space-6) calc(var(--safe-bottom) + var(--space-6));
+  animation: fadeIn var(--duration-base) var(--ease-standard);
+}
+
+.onboarding-skip {
+  align-self: flex-end;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.onboarding-slides {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.onboarding-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard);
+  pointer-events: none;
+  padding: 0 var(--space-4);
+}
+
+.onboarding-slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.onboarding-slide.exit-left {
+  transform: translateX(-40px);
+}
+
+.onboarding-icon-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-8);
+  position: relative;
+}
+
+.onboarding-icon-circle i {
+  font-size: 48px;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.onboarding-step-num {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: var(--text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-glow-teal);
+}
+
+.onboarding-slide h2 {
+  color: var(--text-inverse);
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  margin-bottom: var(--space-3);
+}
+
+.onboarding-slide p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: var(--fs-base);
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.onboarding-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+}
+
+.onboarding-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.25);
+  transition: all var(--duration-base) var(--ease-standard);
+}
+
+.onboarding-dot.active {
+  width: 24px;
+  background: var(--color-emerald);
+}
+
+.onboarding-footer {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.onboarding-footer .btn {
+  flex: 1;
+}

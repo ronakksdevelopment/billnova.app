@@ -1,0 +1,180 @@
+/* ==========================================================================
+   BillNova India — Receipt Styles
+   Professional Indian thermal-style tall receipt for print / PDF / share
+   ========================================================================== */
+
+.receipt-offscreen {
+  position: fixed;
+  top: -10000px;
+  left: -10000px;
+  width: 320px;
+  pointer-events: none;
+}
+
+.receipt-print-only {
+  display: none;
+}
+
+.receipt {
+  width: 320px;
+  background: #ffffff;
+  color: #0B1220;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 24px 20px;
+  box-sizing: border-box;
+}
+
+.r-header {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.r-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  margin: 0 auto 8px;
+  display: block;
+}
+
+.r-shop-name {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.r-shop-contact {
+  font-size: 12px;
+  color: #4B5563;
+  margin-top: 2px;
+}
+
+.r-divider {
+  border-top: 1px dashed #9CA3AF;
+  margin: 12px 0;
+}
+
+.r-divider.r-dashed {
+  border-top-style: dashed;
+}
+
+.r-meta .r-row,
+.r-block .r-row,
+.r-totals .r-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.r-block {
+  margin: 10px 0;
+}
+
+.r-block-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+.r-line {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.r-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.r-items-table thead th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6B7280;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.r-items-table .r-item-qty,
+.r-items-table .r-item-amt {
+  text-align: right;
+}
+
+.r-items-table tbody td {
+  padding: 6px 0;
+  vertical-align: top;
+}
+
+.r-item-name {
+  font-weight: 700;
+}
+
+.r-item-sub {
+  font-weight: 400;
+  color: #6B7280;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.r-totals {
+  margin: 4px 0;
+}
+
+.r-grand-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 800;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #0B1220;
+}
+
+.r-footer {
+  text-align: center;
+  margin-top: 6px;
+}
+
+.r-thankyou {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.r-powered {
+  font-size: 10px;
+  color: #9CA3AF;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Print styles ---------- */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-print-only,
+  .receipt-print-only * {
+    visibility: visible;
+  }
+
+  .receipt-print-only {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .receipt-print-only .receipt {
+    width: 320px;
+    margin: 0 auto;
+  }
+}

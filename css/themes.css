@@ -1,0 +1,57 @@
+/* ==========================================================================
+   BillNova India — Theme Variants
+   Applied via [data-theme] on <html>. "default" uses the base tokens as-is.
+   ========================================================================== */
+
+[data-theme="light"] {
+  --color-soft-gray: #F3F4F6;
+  --text-primary: #0B1220;
+  --text-secondary: #4B5563;
+}
+
+[data-theme="light"] body {
+  background: #F9FAFB;
+}
+
+[data-theme="dark"] {
+  --color-soft-gray: #1A2436;
+  --color-white: #101827;
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --surface-card: rgba(16, 24, 39, 0.97);
+}
+
+[data-theme="dark"] body {
+  background: #0B1220;
+}
+
+[data-theme="dark"] .field-input,
+[data-theme="dark"] .recent-search-input,
+[data-theme="dark"] .recent-date-filter,
+[data-theme="dark"] .modal,
+[data-theme="dark"] .recent-item,
+[data-theme="dark"] .theme-swatch {
+  background: #101827;
+  color: #F3F4F6;
+  border-color: #2A3650;
+}
+
+[data-theme="dark"] .field-label,
+[data-theme="dark"] .recent-item-invoice,
+[data-theme="dark"] .modal-title,
+[data-theme="dark"] .empty-state h3 {
+  color: #F3F4F6;
+}
+
+[data-theme="dark"] .cart-item,
+[data-theme="dark"] .upi-details-card,
+[data-theme="dark"] .upi-qr-wrap {
+  background: #101827;
+  color: #F3F4F6;
+}
+
+[data-theme="dark"] .cart-item-name,
+[data-theme="dark"] .upi-detail-value {
+  color: #F3F4F6;
+}

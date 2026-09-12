@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <title>BillNova India — Instant Billing App</title>
+  <meta name="description" content="BillNova India — Scan, Bill, Done. A fast offline-first billing app for grocery, pharmacy, bakery, clothing, electronics, salon, hardware and restaurant businesses.">
+  <meta name="theme-color" content="#071A3D">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BillNova">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+
+  <!-- Fonts (Google Fonts CDN — falls back to system fonts if offline/blocked) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome (vendored locally for offline-first reliability) -->
+  <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/bottom-nav.css">
+  <link rel="stylesheet" href="css/scanner.css">
+  <link rel="stylesheet" href="css/cart.css">
+  <link rel="stylesheet" href="css/billing-flow.css">
+  <link rel="stylesheet" href="css/receipt.css">
+  <link rel="stylesheet" href="css/recent.css">
+  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="css/themes.css">
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ================= SPLASH SCREEN ================= -->
+  <div id="splash-screen" class="splash-screen" role="status" aria-label="Loading BillNova India">
+    <div class="splash-logo-wrap">
+      <img src="assets/icons/icon-192.png" alt="BillNova India logo">
+    </div>
+    <div class="splash-title">Bill<span>Nova</span> India</div>
+    <div class="splash-subtitle">Scan. Add. Bill.</div>
+    <div class="splash-loader" aria-hidden="true"></div>
+  </div>
+
+  <!-- ================= ONBOARDING ================= -->
+  <div id="onboarding-overlay" class="onboarding-overlay" role="dialog" aria-modal="true" aria-label="App onboarding" hidden>
+    <button class="onboarding-skip" id="onboarding-skip-btn">Skip</button>
+    <div class="onboarding-slides">
+      <div class="onboarding-slide active" data-slide="0">
+        <div class="onboarding-icon-circle">
+          <i class="fa-solid fa-qrcode" aria-hidden="true"></i>
+          <span class="onboarding-step-num">1</span>
+        </div>
+        <h2>Scan</h2>
+        <p>Point your camera at any QR or barcode to instantly identify a product.</p>
+      </div>
+      <div class="onboarding-slide" data-slide="1">
+        <div class="onboarding-icon-circle">
+          <i class="fa-solid fa-cart-plus" aria-hidden="true"></i>
+          <span class="onboarding-step-num">2</span>
+        </div>
+        <h2>Add</h2>
+        <p>New codes ask for a name and price once — then every future scan adds it instantly.</p>
+      </div>
+      <div class="onboarding-slide" data-slide="2">
+        <div class="onboarding-icon-circle">
+          <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+          <span class="onboarding-step-num">3</span>
+        </div>
+        <h2>Bill</h2>
+        <p>Adjust quantity, add discount and GST, then generate a clean bill in seconds.</p>
+      </div>
+    </div>
+    <div class="onboarding-dots" id="onboarding-dots">
+      <span class="onboarding-dot active"></span>
+      <span class="onboarding-dot"></span>
+      <span class="onboarding-dot"></span>
+    </div>
+    <div class="onboarding-footer">
+      <button class="btn btn-primary btn-block" id="onboarding-next-btn">Next</button>
+    </div>
+  </div>
+
+  <!-- ================= APP ROOT ================= -->
+  <div id="app-root" hidden>
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="header-brand">
+          <img src="assets/icons/icon-96.png" alt="BillNova India logo" class="header-logo">
+          <div class="header-brand-text">
+            <strong>BillNova</strong>
+            <small>India</small>
+          </div>
+        </div>
+        <div class="header-actions">
+          <span class="header-page-title" id="header-page-title">Billing</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="app-main" id="main-content">
+
+      <!-- ============ HOME / BILLING DASHBOARD PAGE ============ -->
+      <section class="page active" id="page-home" aria-label="Billing Dashboard">
+
+        <!-- Scanner Section -->
+        <div class="scanner-section">
+          <div class="scanner-viewport" id="scanner-viewport">
+            <div id="scanner-reader"></div>
+
+            <!-- Placeholder before camera starts / permission needed -->
+            <div class="scanner-placeholder" id="scanner-placeholder">
+              <i class="fa-solid fa-camera" aria-hidden="true"></i>
+              <p>Tap the Scan button below to start scanning products with your camera.</p>
+              <button class="btn btn-primary" id="start-scanner-btn">
+                <i class="fa-solid fa-camera-rotate" aria-hidden="true"></i> Start Scanner
+              </button>
+            </div>
+
+            <!-- Top bar: mode toggle + flashlight -->
+            <div class="scanner-topbar" id="scanner-topbar" hidden>
+              <div class="scanner-mode-toggle" role="tablist" aria-label="Scan mode">
+                <button class="scanner-mode-btn active" id="mode-qr-btn" role="tab" aria-selected="true">QR</button>
+                <button class="scanner-mode-btn" id="mode-barcode-btn" role="tab" aria-selected="false">Barcode</button>
+              </div>
+              <div class="scanner-side-controls">
+                <button class="icon-btn tap-sm" id="flashlight-btn" aria-label="Toggle flashlight" title="Flashlight">
+                  <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                </button>
+                <button class="icon-btn tap-sm" id="camera-switch-btn" aria-label="Switch camera" title="Switch camera">
+                  <i class="fa-solid fa-camera-rotate" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Scan frame overlay -->
+            <div class="scanner-overlay" id="scanner-overlay" hidden>
+              <div class="scan-frame">
+                <span class="scan-corner tl"></span>
+                <span class="scan-corner tr"></span>
+                <span class="scan-corner bl"></span>
+                <span class="scan-corner br"></span>
+                <div class="scan-laser" aria-hidden="true"></div>
+              </div>
+              <div class="scanner-hint">Align code within the frame</div>
+            </div>
+
+            <div class="scan-success-flash" id="scan-success-flash" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <!-- Cart Toolbar -->
+        <div class="cart-toolbar">
+          <span class="cart-toolbar-count">Items: <strong id="cart-item-count">0</strong></span>
+          <button class="clear-cart-btn" id="clear-cart-btn">
+            <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Clear Cart
+          </button>
+        </div>
+
+        <!-- Cart List -->
+        <div id="cart-list-container">
+          <div class="empty-state cart-empty" id="cart-empty-state">
+            <div class="empty-icon"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i></div>
+            <h3>Your bill is empty</h3>
+            <p>Scan a product's QR or barcode, or tap the + button to add one manually.</p>
+          </div>
+          <ul class="cart-list" id="cart-list" hidden></ul>
+        </div>
+
+        <!-- Billing Extras: Notes, Discount, GST -->
+        <div class="billing-extras" id="billing-extras" hidden>
+          <div class="field">
+            <label class="field-label" for="notes-input">
+              <i class="fa-solid fa-note-sticky" aria-hidden="true"></i> Notes
+            </label>
+            <input type="text" id="notes-input" class="field-input" placeholder="e.g. Customer name, table no.">
+          </div>
+          <div class="extras-row">
+            <div class="field">
+              <label class="field-label" for="discount-input">Discount</label>
+              <div class="input-group">
+                <input type="number" id="discount-input" class="field-input" placeholder="0" min="0" max="100" inputmode="decimal">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="gst-input">GST</label>
+              <div class="input-group">
+                <input type="number" id="gst-input" class="field-input" placeholder="0" min="0" max="100" inputmode="decimal">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Summary -->
+        <div class="billing-summary" id="billing-summary" hidden>
+          <div class="summary-grid">
+            <div class="summary-row"><span class="label">Total Items</span><span class="value" id="summary-total-items">0</span></div>
+            <div class="summary-row"><span class="label">Total Qty</span><span class="value" id="summary-total-qty">0</span></div>
+            <div class="summary-row"><span class="label">Discount</span><span class="value" id="summary-discount">₹0.00</span></div>
+            <div class="summary-row"><span class="label">GST</span><span class="value" id="summary-gst">₹0.00</span></div>
+          </div>
+          <div class="summary-grand-total">
+            <span class="label">Grand Total</span>
+            <span class="value" id="summary-grand-total">₹0.00</span>
+          </div>
+          <button class="btn btn-primary btn-block confirm-bill-btn" id="confirm-bill-btn">
+            <i class="fa-solid fa-receipt" aria-hidden="true"></i> Confirm Bill
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ============ RECENT BILLS PAGE ============ -->
+      <section class="page" id="page-recent" aria-label="Recent Bills">
+        <div class="recent-toolbar">
+          <div class="recent-search-wrap">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input type="search" id="recent-search-input" class="recent-search-input" placeholder="Search invoice no., customer, item…">
+          </div>
+          <div class="recent-filter-row">
+            <select id="recent-date-filter" class="recent-date-filter">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">Last 7 Days</option>
+              <option value="month">Last 30 Days</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="empty-state" id="recent-empty-state">
+          <div class="empty-icon"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></div>
+          <h3>No recent bills yet</h3>
+          <p>Bills you complete will show up here.</p>
+        </div>
+
+        <ul class="recent-list" id="recent-list" hidden></ul>
+      </section>
+
+      <!-- ============ PROFILE PAGE ============ -->
+      <section class="page" id="page-profile" aria-label="Profile">
+        <div class="profile-header-card">
+          <div class="profile-avatar"><i class="fa-solid fa-store" aria-hidden="true"></i></div>
+          <div class="profile-header-text">
+            <strong id="profile-header-name">Your Shop</strong>
+            <span>Business defaults used on every bill</span>
+          </div>
+        </div>
+
+        <form id="profile-form">
+          <div class="profile-section-title">Shop Details</div>
+          <div class="field">
+            <label class="field-label" for="profile-shop-name">Shop Name</label>
+            <input type="text" id="profile-shop-name" class="field-input" placeholder="e.g. Sharma General Store" autocomplete="off">
+          </div>
+          <div class="field">
+            <label class="field-label" for="profile-contact">Contact Number</label>
+            <input type="tel" id="profile-contact" class="field-input" placeholder="10-digit mobile number" autocomplete="off">
+          </div>
+          <div class="field">
+            <label class="field-label" for="profile-upi-id">UPI ID</label>
+            <input type="text" id="profile-upi-id" class="field-input" placeholder="yourname@upi" autocomplete="off">
+          </div>
+
+          <div class="profile-section-title">Billing Defaults</div>
+          <div class="extras-row">
+            <div class="field">
+              <label class="field-label" for="profile-gst">Default GST</label>
+              <div class="input-group">
+                <input type="number" id="profile-gst" class="field-input" placeholder="0" min="0" max="100" inputmode="decimal">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="profile-currency">Currency Symbol</label>
+              <input type="text" id="profile-currency" class="field-input" placeholder="₹" maxlength="3">
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="profile-footer">Receipt Footer Message</label>
+            <input type="text" id="profile-footer" class="field-input" placeholder="Thank you for shopping with us!" autocomplete="off">
+          </div>
+
+          <div class="profile-section-title">Theme</div>
+          <div class="theme-swatch-row" id="theme-swatch-row">
+            <button type="button" class="theme-swatch active" data-theme="default" aria-label="Default theme">
+              <span class="swatch-dot swatch-default"></span> Default
+            </button>
+            <button type="button" class="theme-swatch" data-theme="light" aria-label="Light theme">
+              <span class="swatch-dot swatch-light"></span> Light
+            </button>
+            <button type="button" class="theme-swatch" data-theme="dark" aria-label="Dark theme">
+              <span class="swatch-dot swatch-dark"></span> Dark
+            </button>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="margin-top: var(--space-6);">
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save Profile
+          </button>
+        </form>
+
+        <div class="profile-section-title">Data</div>
+        <div class="profile-data-actions">
+          <button type="button" class="btn btn-outline btn-block" id="profile-export-btn">
+            <i class="fa-solid fa-download" aria-hidden="true"></i> Export Backup (JSON)
+          </button>
+          <button type="button" class="btn btn-danger btn-block" id="profile-reset-btn">
+            <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Reset All Data
+          </button>
+        </div>
+        <div class="profile-app-version">BillNova India · v1.0</div>
+      </section>
+
+    </main>
+
+    <!-- Manual Add Floating Button -->
+    <button class="manual-add-fab" id="manual-add-fab" aria-label="Add product manually">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    </button>
+
+    <!-- PWA Install Banner -->
+    <div class="install-banner" id="install-banner" role="dialog" aria-label="Install BillNova India app">
+      <button class="icon-btn install-banner-close tap-sm" id="install-banner-close" aria-label="Dismiss install prompt">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <img src="assets/icons/icon-96.png" alt="" class="install-banner-icon">
+      <div class="install-banner-text">
+        <strong>Install BillNova India</strong>
+        <span>Add to home screen for instant offline billing.</span>
+      </div>
+      <div class="install-banner-actions">
+        <button class="btn btn-primary btn-sm" id="install-banner-btn">Install</button>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" aria-label="Primary navigation">
+      <div class="bottom-nav-inner">
+        <button class="nav-item active" id="nav-home" data-page="home" aria-current="page">
+          <i class="fa-solid fa-house" aria-hidden="true"></i>
+          <span>Home</span>
+        </button>
+        <button class="nav-item" id="nav-recent" data-page="recent">
+          <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+          <span>Recent</span>
+        </button>
+        <div class="nav-scan-wrap">
+          <button class="nav-scan-btn" id="nav-scan-btn" aria-label="Open Scan Billing">
+            <i class="fa-solid fa-qrcode" aria-hidden="true"></i>
+          </button>
+          <span class="nav-scan-label">Scan</span>
+        </div>
+        <button class="nav-item" id="nav-profile" data-page="profile">
+          <i class="fa-solid fa-user" aria-hidden="true"></i>
+          <span>Profile</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- New Product Modal (unknown scanned code) -->
+  <div class="modal-backdrop" id="new-product-modal" role="dialog" aria-modal="true" aria-labelledby="new-product-title">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <span class="modal-title" id="new-product-title">New Product</span>
+        <button class="icon-btn icon-btn--light modal-close tap-sm" id="new-product-close" aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <p class="field-hint" style="margin-bottom:16px;">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        Code <strong id="new-product-code">—</strong> scanned for the first time. Save it once — future scans add it instantly.
+      </p>
+      <form id="new-product-form">
+        <div class="field">
+          <label class="field-label" for="new-product-name">Product Name</label>
+          <input type="text" id="new-product-name" class="field-input" placeholder="e.g. Parle-G Biscuit 100g" required autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="field-label" for="new-product-price">Price</label>
+          <div class="input-group">
+            <span class="prefix">₹</span>
+            <input type="number" id="new-product-price" class="field-input has-prefix" placeholder="0.00" min="0" step="0.01" inputmode="decimal" required>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="new-product-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save & Add
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manual Add Product Modal -->
+  <div class="modal-backdrop" id="manual-product-modal" role="dialog" aria-modal="true" aria-labelledby="manual-product-title">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <span class="modal-title" id="manual-product-title">Add Product</span>
+        <button class="icon-btn icon-btn--light modal-close tap-sm" id="manual-product-close" aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="manual-product-form">
+        <div class="field">
+          <label class="field-label" for="manual-product-name">Product Name</label>
+          <input type="text" id="manual-product-name" class="field-input" placeholder="e.g. Loose Rice (1kg)" required autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="field-label" for="manual-product-price">Price</label>
+          <div class="input-group">
+            <span class="prefix">₹</span>
+            <input type="number" id="manual-product-price" class="field-input has-prefix" placeholder="0.00" min="0" step="0.01" inputmode="decimal" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="manual-product-qty">Quantity</label>
+          <input type="number" id="manual-product-qty" class="field-input" placeholder="1" min="1" step="1" value="1" inputmode="numeric">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="manual-product-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-cart-plus" aria-hidden="true"></i> Add to Bill
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Dialog (Clear Cart / Remove item) -->
+  <div class="modal-backdrop" id="confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="confirm-icon"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div>
+      <div class="confirm-title" id="confirm-title">Are you sure?</div>
+      <p class="confirm-text" id="confirm-text">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="confirm-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirm-ok-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Bill Modal -->
+  <div class="modal-backdrop" id="confirm-bill-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-bill-title">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <span class="modal-title" id="confirm-bill-title">Confirm Bill</span>
+        <button class="icon-btn icon-btn--light modal-close tap-sm" id="confirm-bill-close" aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="confirm-bill-form">
+        <p class="field-hint" style="margin-bottom:16px;">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          All fields are optional. They appear on the receipt if filled in.
+        </p>
+        <div class="field">
+          <label class="field-label" for="cb-shop-name">Shop Name</label>
+          <input type="text" id="cb-shop-name" class="field-input" placeholder="e.g. Sharma General Store" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="field-label" for="cb-shop-contact">Shop Contact Number</label>
+          <input type="tel" id="cb-shop-contact" class="field-input" placeholder="10-digit mobile number" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="field-label" for="cb-customer-name">Customer Full Name</label>
+          <input type="text" id="cb-customer-name" class="field-input" placeholder="e.g. Rahul Verma" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="field-label" for="cb-customer-contact">Customer Contact Number</label>
+          <input type="tel" id="cb-customer-contact" class="field-input" placeholder="10-digit mobile number" autocomplete="off">
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="cb-whatsapp-same">
+          <span><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp same as contact number</span>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="confirm-bill-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            Continue <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal-backdrop" id="payment-modal" role="dialog" aria-modal="true" aria-labelledby="payment-title">
+    <div class="modal modal-lg">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <button class="icon-btn tap-sm" id="payment-back" aria-label="Back">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        </button>
+        <span class="modal-title" id="payment-title">Payment</span>
+        <button class="icon-btn icon-btn--light modal-close tap-sm" id="payment-close" aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="payment-tabs" role="tablist" aria-label="Payment method">
+        <button class="payment-tab active" id="payment-tab-cash" role="tab" aria-selected="true">
+          <i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Cash
+        </button>
+        <button class="payment-tab" id="payment-tab-upi" role="tab" aria-selected="false">
+          <i class="fa-solid fa-qrcode" aria-hidden="true"></i> UPI
+        </button>
+      </div>
+
+      <div class="payment-panel" id="payment-panel-cash">
+        <div class="payment-cash-icon"><i class="fa-solid fa-hand-holding-dollar" aria-hidden="true"></i></div>
+        <p class="payment-cash-text">Collect the exact cash amount from the customer, then confirm below.</p>
+      </div>
+
+      <div class="payment-panel" id="payment-panel-upi" hidden>
+        <div class="upi-qr-container" id="upi-qr-container"></div>
+        <div class="upi-details-card">
+          <div class="upi-detail-row"><span class="upi-detail-label">Shop</span><span class="upi-detail-value" id="upi-detail-shop">—</span></div>
+          <div class="upi-detail-row">
+            <span class="upi-detail-label">UPI ID</span>
+            <span class="upi-detail-value" id="upi-detail-id">—</span>
+            <button type="button" class="icon-btn tap-sm" id="upi-copy-btn" aria-label="Copy UPI ID">
+              <i class="fa-regular fa-copy" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="upi-detail-row"><span class="upi-detail-label">Phone</span><span class="upi-detail-value" id="upi-detail-phone">—</span></div>
+          <div class="upi-detail-row upi-detail-amount-row"><span class="upi-detail-label">Amount</span><span class="upi-detail-value upi-amount" id="upi-detail-amount">₹0.00</span></div>
+        </div>
+        <p class="field-hint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Scan with any UPI app — the amount is prefilled automatically.</p>
+      </div>
+
+      <div class="modal-actions modal-actions--single">
+        <button type="button" class="btn btn-primary btn-block" id="payment-confirm-btn" data-method="cash">
+          <i class="fa-solid fa-check" aria-hidden="true"></i> Confirm Cash Payment
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Overlay -->
+  <div class="success-overlay" id="success-overlay" hidden>
+    <div class="success-content">
+      <div class="success-tick-wrap">
+        <svg class="success-tick-svg" viewBox="0 0 100 100">
+          <circle class="success-tick-circle" cx="50" cy="50" r="46"></circle>
+          <path class="success-tick-check" d="M28 52 L43 66 L74 34"></path>
+        </svg>
+      </div>
+      <h2 class="success-title" id="success-title">Bill Completed!</h2>
+      <p class="success-subtitle" id="success-subtitle">Invoice <span id="success-invoice">—</span></p>
+      <div class="success-amount" id="success-amount">₹0.00</div>
+
+      <div class="success-actions" id="success-actions">
+        <button type="button" class="success-action-btn" id="action-print-btn">
+          <span class="success-action-icon"><i class="fa-solid fa-print" aria-hidden="true"></i></span>
+          <span>Print Receipt</span>
+        </button>
+        <button type="button" class="success-action-btn" id="action-whatsapp-btn">
+          <span class="success-action-icon success-action-icon--whatsapp"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></span>
+          <span>Share on WhatsApp</span>
+        </button>
+        <button type="button" class="success-action-btn" id="action-pdf-btn">
+          <span class="success-action-icon success-action-icon--pdf"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></span>
+          <span>Save as PDF</span>
+        </button>
+      </div>
+
+      <button type="button" class="btn btn-secondary btn-block" id="success-done-btn" style="margin-top: var(--space-6);">Done</button>
+    </div>
+  </div>
+
+  <!-- Hidden receipt render targets (export & print only, never shown directly) -->
+  <div id="receipt-export-container" class="receipt-offscreen" aria-hidden="true"></div>
+  <div id="receipt-print-container" class="receipt-print-only" aria-hidden="true"></div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loading-overlay" hidden role="status" aria-live="polite">
+    <div class="spinner"></div>
+    <span id="loading-overlay-text">Loading…</span>
+  </div>
+
+  <!-- ================= SCRIPTS ================= -->
+  <!-- Third-party libraries (vendored locally for offline-first reliability) -->
+  <script src="vendor/html5-qrcode.min.js"></script>
+  <script src="vendor/JsBarcode.all.min.js"></script>
+  <script src="vendor/qrcode.min.js"></script>
+  <script src="vendor/html2canvas.min.js"></script>
+  <script src="vendor/jspdf.umd.min.js"></script>
+
+  <!-- App scripts -->
+  <script src="js/db.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/loading.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/onboarding.js"></script>
+  <script src="js/pwa-install.js"></script>
+  <script src="js/scanner.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/receipt.js"></script>
+  <script src="js/billing.js"></script>
+  <script src="js/recent.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

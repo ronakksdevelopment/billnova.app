@@ -1,0 +1,260 @@
+/* ==========================================================================
+   BillNova India — Cart / Billing List + Sticky Summary
+   ========================================================================== */
+
+.cart-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.cart-item {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  animation: itemIn var(--duration-base) var(--ease-bounce);
+  position: relative;
+}
+
+@keyframes itemIn {
+  from { opacity: 0; transform: translateX(-16px) scale(0.97); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.cart-item.removing {
+  animation: itemOut var(--duration-base) var(--ease-standard) forwards;
+}
+
+@keyframes itemOut {
+  to { opacity: 0; transform: translateX(60px) scale(0.9); height: 0; margin: 0; padding: 0; }
+}
+
+.cart-item-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(45,212,191,0.12));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cart-item-icon i {
+  color: var(--color-emerald-dark);
+  font-size: 18px;
+}
+
+.cart-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cart-item-name {
+  font-weight: 700;
+  font-size: var(--fs-base);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cart-item-meta {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.cart-item-price {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.cart-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  background: var(--color-soft-gray);
+  border-radius: var(--radius-full);
+  padding: 3px;
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 50%;
+  background: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-navy);
+  font-size: 13px;
+  box-shadow: var(--shadow-sm);
+}
+
+.qty-btn:active {
+  transform: scale(0.88);
+}
+
+.qty-btn.minus {
+  color: var(--color-danger);
+}
+.qty-btn.plus {
+  color: var(--color-emerald-dark);
+}
+
+.qty-input {
+  width: 34px;
+  text-align: center;
+  background: transparent;
+  font-weight: 800;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+}
+
+.cart-item-subtotal {
+  font-weight: 800;
+  font-size: var(--fs-md);
+  color: var(--color-navy);
+}
+
+.cart-item-trash {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  font-size: 11px;
+}
+
+.cart-item-trash:active {
+  transform: scale(0.85);
+}
+
+/* ---------- Cart Toolbar (Clear cart, item count) ---------- */
+.cart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.cart-toolbar-count {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.cart-toolbar-count strong {
+  color: var(--color-navy);
+}
+
+.clear-cart-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-danger);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  padding: 8px 12px;
+}
+
+/* ---------- Extra fields: Notes, Discount, GST ---------- */
+.billing-extras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+}
+
+.extras-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+/* ---------- Sticky Bottom Summary ---------- */
+.billing-summary {
+  position: sticky;
+  bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + var(--space-3));
+  background: var(--gradient-navy);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-lg);
+  margin-top: var(--space-4);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-sm);
+}
+
+.summary-row .label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.summary-row .value {
+  font-weight: 700;
+}
+
+.summary-grand-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-grand-total .label {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.summary-grand-total .value {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Empty cart state inside billing page */
+.cart-empty {
+  padding: var(--space-8) var(--space-4);
+}
