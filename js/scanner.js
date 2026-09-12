@@ -24,11 +24,14 @@ const Scanner = (() => {
   let lastScannedCode = null;
   let lastScannedAt = 0;
   let onScanSuccessCallback = null;
+  let permissionRevoked = false; // true when the OS/browser pulled camera access away mid-session
+  let permissionStatusHandle = null; // navigator.permissions PermissionStatus, kept for its change listener
+  let watchdogTimer = null; // periodic fallback check for browsers without the Permissions API
 
   // Elements
   let placeholderEl, topbarEl, overlayEl, flashlightBtn, cameraSwitchBtn, cameraToggleBtn;
   let modeQrBtn, modeBarcodeBtn, modeToggleEl, successFlashEl, scanFrameEl;
-  let placeholderTextEl, placeholderIconEl;
+  let placeholderTextEl, placeholderIconEl, placeholderRetryBtn;
 
   const QR_CONFIG = {
     fps: 12,
@@ -61,6 +64,7 @@ const Scanner = (() => {
     placeholderEl = document.getElementById('scanner-placeholder');
     placeholderIconEl = placeholderEl.querySelector('i');
     placeholderTextEl = placeholderEl.querySelector('p');
+    placeholderRetryBtn = document.getElementById('scanner-placeholder-retry');
     topbarEl = document.getElementById('scanner-topbar');
     modeToggleEl = document.querySelector('.scanner-mode-toggle');
     overlayEl = document.getElementById('scanner-overlay');
@@ -87,14 +91,146 @@ const Scanner = (() => {
     cameraToggleBtn.addEventListener('click', toggleCameraEnabled);
     modeQrBtn.addEventListener('click', () => switchMode('qr'));
     modeBarcodeBtn.addEventListener('click', () => switchMode('barcode'));
+    if (placeholderRetryBtn) {
+      placeholderRetryBtn.addEventListener('click', requestPermissionAndRestart);
+    }
 
     html5QrCode = new Html5Qrcode(READER_ELEMENT_ID, /* verbose= */ false);
 
     // Set the initial frame color/shape before the camera even starts.
     updateScanFrame(currentMode, /* animate= */ false);
 
+    watchPermissionChanges();
+    watchTabVisibility();
+
     // Start the live camera immediately, no user action required.
     start();
+  }
+
+  /**
+   * Watches the browser's camera PermissionStatus (where supported) so that
+   * if the user (or the OS) revokes camera access *while the app is open* —
+   * e.g. from the browser's site-settings panel — we notice immediately
+   * instead of leaving a frozen/black video element on screen. Falls back
+   * to a lightweight polling watchdog on browsers without the Permissions
+   * API or without camera as a queryable name (older Safari/iOS).
+   */
+  function watchPermissionChanges() {
+    if (!navigator.permissions || !navigator.permissions.query) {
+      startRevocationWatchdog();
+      return;
+    }
+    navigator.permissions
+      .query({ name: 'camera' })
+      .then((status) => {
+        permissionStatusHandle = status;
+        status.addEventListener('change', handlePermissionStatusChange);
+      })
+      .catch(() => {
+        // 'camera' isn't a recognized permission name on this browser;
+        // fall back to the polling watchdog instead.
+        startRevocationWatchdog();
+      });
+  }
+
+  function handlePermissionStatusChange() {
+    if (!permissionStatusHandle) return;
+    if (permissionStatusHandle.state === 'denied') {
+      handlePermissionRevoked();
+    } else if (permissionStatusHandle.state === 'granted' && permissionRevoked) {
+      // Permission was re-granted from outside the app (e.g. the user
+      // flipped it back on in browser settings); recover automatically.
+      permissionRevoked = false;
+      resume();
+    }
+  }
+
+  /**
+   * Fallback for browsers that can't report permission changes via events:
+   * periodically checks whether the live video track died unexpectedly
+   * (readyState 'ended' with the camera never intentionally turned off).
+   */
+  function startRevocationWatchdog() {
+    clearInterval(watchdogTimer);
+    watchdogTimer = setInterval(() => {
+      if (!isRunning || isManuallyDisabled) return;
+      const track = getActiveVideoTrack();
+      if (!track || track.readyState === 'ended') {
+        handlePermissionRevoked();
+      }
+    }, 3000);
+  }
+
+  /**
+   * Also catches the common real-world case: the user backgrounds the app
+   * (switches apps, locks the phone) and revokes the camera permission from
+   * system settings while away, then comes back. A plain resume() would
+   * otherwise just hang since the old stream is dead.
+   */
+  function watchTabVisibility() {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+      if (isManuallyDisabled) return;
+      const track = getActiveVideoTrack();
+      if (isRunning && (!track || track.readyState === 'ended')) {
+        handlePermissionRevoked();
+      }
+    });
+  }
+
+  /**
+   * Central handler for "camera access disappeared out from under us".
+   * Tears down the dead stream and shows a placeholder with a clear retry
+   * action, rather than leaving a black/frozen video box on screen.
+   */
+  async function handlePermissionRevoked() {
+    if (permissionRevoked) return;
+    permissionRevoked = true;
+    isRunning = false;
+    pausedTrack = null;
+    await stopCameraStream();
+    showPlaceholder('revoked');
+    Toast.error('Camera permission was turned off. Tap "Enable Camera" to reconnect.');
+  }
+
+  /**
+   * Explicitly re-requests camera permission via a fresh getUserMedia call
+   * (this is what actually re-triggers the browser's permission prompt if
+   * it's in a re-promptable state, or recovers the stream immediately if
+   * the OS-level permission was simply re-granted) and restarts the
+   * scanner. Exposed for the placeholder's "Enable Camera" button and for
+   * the bottom-nav long-press quick action.
+   */
+  async function requestPermissionAndRestart() {
+    if (isStarting) return;
+    isStarting = true;
+    try {
+      // Force a fresh permission check/prompt, independent of any stale
+      // camera id or stream we were holding onto before.
+      const probeStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      probeStream.getTracks().forEach((track) => track.stop());
+
+      permissionRevoked = false;
+      isManuallyDisabled = false;
+      isStarting = false;
+
+      availableCameras = await Html5Qrcode.getCameras();
+      if (!availableCameras || availableCameras.length === 0) {
+        showPlaceholder('unavailable');
+        return;
+      }
+      if (currentCameraIndex >= availableCameras.length) currentCameraIndex = 0;
+      currentCameraId = availableCameras[currentCameraIndex].id;
+
+      await stopCameraStream();
+      await start();
+      Toast.success('Camera reconnected.');
+    } catch (err) {
+      console.error('[Scanner] Permission re-request failed', err);
+      isStarting = false;
+      showPlaceholder('revoked');
+      Toast.error('Camera permission is still blocked. Allow it from your browser/site settings.');
+    }
   }
 
   /**
@@ -106,6 +242,7 @@ const Scanner = (() => {
     if (isRunning || isStarting) return;
     isStarting = true;
     try {
+      permissionRevoked = false;
       availableCameras = await Html5Qrcode.getCameras();
 
       if (!availableCameras || availableCameras.length === 0) {
@@ -128,8 +265,14 @@ const Scanner = (() => {
       isRunning = true;
     } catch (err) {
       console.error('[Scanner] Failed to start camera', err);
-      Toast.error('Camera permission denied or unavailable.');
-      showPlaceholder('unavailable');
+      if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+        permissionRevoked = true;
+        Toast.error('Camera permission denied.');
+        showPlaceholder('revoked');
+      } else {
+        Toast.error('Camera unavailable on this device.');
+        showPlaceholder('unavailable');
+      }
     } finally {
       isStarting = false;
     }
@@ -140,10 +283,11 @@ const Scanner = (() => {
    * stays visible and clickable here; only the mode toggle, flashlight, and
    * camera-switch controls hide, since they don't apply while there's no
    * live stream.
-   * @param {'off'|'unavailable'} reason
+   * @param {'off'|'unavailable'|'revoked'} reason
    */
   function showPlaceholder(reason) {
     placeholderEl.hidden = false;
+    placeholderEl.dataset.reason = reason;
     overlayEl.hidden = true;
     topbarEl.hidden = false;
     if (modeToggleEl) modeToggleEl.hidden = true;
@@ -153,9 +297,15 @@ const Scanner = (() => {
     if (reason === 'off') {
       placeholderIconEl.className = 'fa-solid fa-eye-slash';
       placeholderTextEl.textContent = 'Camera is turned off. Tap the eye icon to scan again.';
+      if (placeholderRetryBtn) placeholderRetryBtn.hidden = true;
+    } else if (reason === 'revoked') {
+      placeholderIconEl.className = 'fa-solid fa-camera-slash';
+      placeholderTextEl.textContent = 'Camera permission was revoked. Tap below to reconnect.';
+      if (placeholderRetryBtn) placeholderRetryBtn.hidden = false;
     } else {
       placeholderIconEl.className = 'fa-solid fa-camera';
-      placeholderTextEl.textContent = 'Camera access is needed to scan products. Please allow camera permission and reload the app.';
+      placeholderTextEl.textContent = 'Camera access is needed to scan products. Allow camera permission to continue.';
+      if (placeholderRetryBtn) placeholderRetryBtn.hidden = false;
     }
   }
 
@@ -415,6 +565,20 @@ const Scanner = (() => {
   }
 
   /**
+   * Fully tears down permission watchers. Not currently called (the app has
+   * a single long-lived Scanner instance for its whole lifetime) but kept
+   * available in case a future embeddable/teardown use case needs it.
+   */
+  function destroyWatchers() {
+    clearInterval(watchdogTimer);
+    watchdogTimer = null;
+    if (permissionStatusHandle) {
+      permissionStatusHandle.removeEventListener('change', handlePermissionStatusChange);
+      permissionStatusHandle = null;
+    }
+  }
+
+  /**
    * Resumes the scanner after it was stopped by navigating away from the
    * Billing screen, or by the eye button. Starts instantly, no loading
    * screen. Does nothing if the user manually turned the camera off via
@@ -424,6 +588,12 @@ const Scanner = (() => {
   async function resume() {
     if (isManuallyDisabled) return;
     if (isRunning || isStarting) return;
+    if (permissionRevoked) {
+      // Don't silently retry a dead stream; the user needs to explicitly
+      // re-grant access via the placeholder's "Enable Camera" button.
+      showPlaceholder('revoked');
+      return;
+    }
     isStarting = true;
     try {
       if (!currentCameraId) {
@@ -436,7 +606,12 @@ const Scanner = (() => {
       isRunning = true;
     } catch (err) {
       console.error('[Scanner] Failed to resume camera', err);
-      showPlaceholder('unavailable');
+      if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+        permissionRevoked = true;
+        showPlaceholder('revoked');
+      } else {
+        showPlaceholder('unavailable');
+      }
     } finally {
       isStarting = false;
     }
@@ -461,5 +636,25 @@ const Scanner = (() => {
     return isRunning;
   }
 
-  return { init, start, stop, resume, getMode, isCameraOn };
+  /**
+   * Whether the camera stream died because permission was revoked
+   * mid-session (as opposed to the user manually turning it off, or it
+   * simply never having started). Used by other UI (quick actions) to
+   * decide whether to show a "re-enable" style action.
+   * @returns {boolean}
+   */
+  function isPermissionRevoked() {
+    return permissionRevoked;
+  }
+
+  return {
+    init,
+    start,
+    stop,
+    resume,
+    getMode,
+    isCameraOn,
+    isPermissionRevoked,
+    requestPermissionAndRestart,
+  };
 })();

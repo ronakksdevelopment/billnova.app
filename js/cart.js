@@ -242,10 +242,15 @@ const Cart = (() => {
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
         <div class="cart-item-icon">
-          <i class="fa-solid ${item.code ? 'fa-qrcode' : 'fa-pen'}" aria-hidden="true"></i>
+          <i class="fa-solid ${item.code ? 'fa-qrcode' : 'fa-basket-shopping'}" aria-hidden="true"></i>
         </div>
         <div class="cart-item-info">
-          <div class="cart-item-name">${Utils.escapeHtml(item.name)}</div>
+          <div class="cart-item-name-row">
+            <div class="cart-item-name">${Utils.escapeHtml(item.name)}</div>
+            <button class="cart-item-edit tap-sm" data-action="edit" aria-label="Edit ${Utils.escapeHtml(item.name)}" title="Edit name or price">
+              <i class="fa-solid fa-pen" aria-hidden="true"></i>
+            </button>
+          </div>
           <div class="cart-item-meta">${item.code ? 'Scanned' : 'Manual entry'}</div>
           <div class="cart-item-price">${Utils.formatCurrency(item.price)} each</div>
         </div>
@@ -255,7 +260,7 @@ const Cart = (() => {
             <button class="qty-btn minus tap-sm" data-action="minus" aria-label="Decrease quantity">
               <i class="fa-solid fa-minus" aria-hidden="true"></i>
             </button>
-            <input type="number" class="qty-input" data-action="qty-input" value="${item.qty}" min="0" inputmode="numeric" aria-label="Quantity for ${Utils.escapeHtml(item.name)}">
+            <span class="qty-value" data-action="qty-input" role="spinbutton" aria-valuenow="${item.qty}" aria-valuemin="0" aria-label="Quantity for ${Utils.escapeHtml(item.name)}" tabindex="0">${item.qty}</span>
             <button class="qty-btn plus tap-sm" data-action="plus" aria-label="Increase quantity">
               <i class="fa-solid fa-plus" aria-hidden="true"></i>
             </button>
@@ -278,9 +283,104 @@ const Cart = (() => {
     listEl.querySelectorAll('[data-action="remove"]').forEach((btn) => {
       btn.addEventListener('click', () => handleRemoveClick(getRowId(btn)));
     });
-    listEl.querySelectorAll('[data-action="qty-input"]').forEach((input) => {
-      input.addEventListener('change', (e) => setQty(getRowId(e.target), e.target.value));
+    listEl.querySelectorAll('[data-action="edit"]').forEach((btn) => {
+      btn.addEventListener('click', () => handleEditClick(getRowId(btn)));
     });
+    // Tapping the quantity value turns it into an inline editable field —
+    // no native browser prompt/dialog, styled to match the qty pill itself.
+    listEl.querySelectorAll('[data-action="qty-input"]').forEach((el) => {
+      el.addEventListener('click', () => enterQtyEditMode(el, getRowId(el)));
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          enterQtyEditMode(el, getRowId(el));
+        }
+      });
+    });
+  }
+
+  /**
+   * Swaps the static quantity <span> for a real (but custom-styled) number
+   * input in place, focuses + selects it, and commits the value back on
+   * blur/Enter. Avoids window.prompt() entirely so the whole cart stays
+   * inside the app's own UI instead of dropping into a native OS dialog.
+   * @param {HTMLElement} spanEl
+   * @param {string} id
+   */
+  function enterQtyEditMode(spanEl, id) {
+    if (spanEl.dataset.editing === 'true') return;
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+
+    spanEl.dataset.editing = 'true';
+    const originalText = spanEl.textContent;
+    const inputEl = document.createElement('input');
+    inputEl.type = 'number';
+    inputEl.className = 'qty-value-input';
+    inputEl.value = String(item.qty);
+    inputEl.min = '0';
+    inputEl.inputMode = 'numeric';
+    inputEl.setAttribute('aria-label', spanEl.getAttribute('aria-label') || 'Quantity');
+
+    spanEl.replaceWith(inputEl);
+    inputEl.focus();
+    inputEl.select();
+
+    let committed = false;
+    const commit = () => {
+      if (committed) return;
+      committed = true;
+      setQty(id, inputEl.value);
+      // render() (called by setQty) rebuilds the whole row, so there is no
+      // stale spanEl/inputEl to restore here.
+    };
+    const cancel = () => {
+      if (committed) return;
+      committed = true;
+      inputEl.replaceWith(spanEl);
+      spanEl.textContent = originalText;
+      delete spanEl.dataset.editing;
+    };
+
+    inputEl.addEventListener('blur', commit);
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        inputEl.blur();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        cancel();
+      }
+    });
+  }
+
+  /**
+   * Opens the Edit Item modal (name + price) for the given cart item.
+   * @param {string} id
+   */
+  function handleEditClick(id) {
+    const item = items.find((i) => i.id === id);
+    if (!item || !window.CartItemEditor) return;
+    window.CartItemEditor.open(item);
+  }
+
+  /**
+   * Updates an item's name and/or price in place (used by the Edit Item
+   * modal). Unlike changeQty/setQty this never removes the item.
+   * @param {string} id
+   * @param {{name: string, price: number}} updates
+   */
+  function updateItem(id, updates) {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+    if (typeof updates.name === 'string' && updates.name.trim()) {
+      item.name = updates.name.trim();
+    }
+    if (typeof updates.price === 'number' && !isNaN(updates.price) && updates.price >= 0) {
+      item.price = updates.price;
+    }
+    render();
+    persistToStorage();
   }
 
   function getRowId(el) {
@@ -339,6 +439,15 @@ const Cart = (() => {
   }
 
   /**
+   * Returns a single cart item by id, or null.
+   * @param {string} id
+   * @returns {Object|null}
+   */
+  function getItem(id) {
+    return items.find((i) => i.id === id) || null;
+  }
+
+  /**
    * Returns a plain snapshot of cart contents for building a bill record.
    */
   function getExportData() {
@@ -370,9 +479,11 @@ const Cart = (() => {
     addItem,
     changeQty,
     setQty,
+    updateItem,
     removeItem,
     computeTotals,
     getItemCount,
+    getItem,
     getExportData,
     reset,
   };

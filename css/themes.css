@@ -28,13 +28,26 @@
 
 [data-theme="dark"] .field-input,
 [data-theme="dark"] .recent-search-input,
-[data-theme="dark"] .recent-date-filter,
+[data-theme="dark"] .custom-dropdown-trigger,
+[data-theme="dark"] .custom-dropdown-menu,
 [data-theme="dark"] .modal,
 [data-theme="dark"] .recent-item,
 [data-theme="dark"] .theme-swatch {
   background: #101827;
   color: #F3F4F6;
   border-color: #2A3650;
+}
+
+[data-theme="dark"] .custom-dropdown-option {
+  color: #9CA3AF;
+}
+
+[data-theme="dark"] .custom-dropdown-option:hover {
+  background: #1A2436;
+}
+
+[data-theme="dark"] .custom-dropdown-option.selected {
+  color: #F3F4F6;
 }
 
 [data-theme="dark"] .field-label,

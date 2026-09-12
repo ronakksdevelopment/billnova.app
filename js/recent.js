@@ -9,13 +9,17 @@ const Recent = (() => {
   let searchTerm = '';
   let dateFilter = 'all';
 
-  let listEl, emptyStateEl, searchInput, dateFilterSelect;
+  let listEl, emptyStateEl, searchInput;
+  let dropdownEl, dropdownTriggerEl, dropdownLabelEl, dropdownMenuEl;
 
   function cacheElements() {
     listEl = document.getElementById('recent-list');
     emptyStateEl = document.getElementById('recent-empty-state');
     searchInput = document.getElementById('recent-search-input');
-    dateFilterSelect = document.getElementById('recent-date-filter');
+    dropdownEl = document.getElementById('recent-date-dropdown');
+    dropdownTriggerEl = document.getElementById('recent-date-dropdown-trigger');
+    dropdownLabelEl = document.getElementById('recent-date-dropdown-label');
+    dropdownMenuEl = document.getElementById('recent-date-dropdown-menu');
   }
 
   async function init() {
@@ -26,12 +30,65 @@ const Recent = (() => {
       renderList();
     }, 250));
 
-    dateFilterSelect.addEventListener('change', (e) => {
-      dateFilter = e.target.value;
-      renderList();
-    });
+    initDateDropdown();
 
     await refresh();
+  }
+
+  /**
+   * Wires up the custom date-filter dropdown (replaces the native <select>,
+   * which on mobile falls back to the OS's own default picker UI and can't
+   * be themed to match the rest of the app).
+   */
+  function initDateDropdown() {
+    dropdownTriggerEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleDateDropdown();
+    });
+
+    dropdownMenuEl.querySelectorAll('.custom-dropdown-option').forEach((opt) => {
+      opt.addEventListener('click', () => {
+        selectDateFilter(opt.dataset.value, opt.textContent.trim());
+      });
+    });
+
+    // Close on outside tap/click, and on Escape.
+    document.addEventListener('click', (e) => {
+      if (!dropdownEl.contains(e.target)) closeDateDropdown();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDateDropdown();
+    });
+  }
+
+  function toggleDateDropdown() {
+    const isOpen = !dropdownMenuEl.hidden;
+    if (isOpen) closeDateDropdown();
+    else openDateDropdown();
+  }
+
+  function openDateDropdown() {
+    dropdownMenuEl.hidden = false;
+    dropdownTriggerEl.setAttribute('aria-expanded', 'true');
+    dropdownEl.classList.add('open');
+  }
+
+  function closeDateDropdown() {
+    dropdownMenuEl.hidden = true;
+    dropdownTriggerEl.setAttribute('aria-expanded', 'false');
+    dropdownEl.classList.remove('open');
+  }
+
+  function selectDateFilter(value, label) {
+    dateFilter = value;
+    dropdownLabelEl.textContent = label;
+    dropdownMenuEl.querySelectorAll('.custom-dropdown-option').forEach((opt) => {
+      const isMatch = opt.dataset.value === value;
+      opt.classList.toggle('selected', isMatch);
+      opt.setAttribute('aria-selected', String(isMatch));
+    });
+    closeDateDropdown();
+    renderList();
   }
 
   async function refresh() {

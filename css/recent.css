@@ -41,8 +41,21 @@
   display: flex;
 }
 
-.recent-date-filter {
+/* ---------- Custom Dropdown (replaces native <select>) ----------
+   A fully custom-styled trigger + option list so the filter matches the
+   app's own visual language instead of falling back to the browser/OS's
+   default picker sheet on mobile. */
+.custom-dropdown {
+  position: relative;
   flex: 1;
+}
+
+.custom-dropdown-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
   padding: 12px 16px;
   border-radius: var(--radius-md);
   border: 2px solid var(--color-soft-gray);
@@ -50,6 +63,80 @@
   font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--text-secondary);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.custom-dropdown.open .custom-dropdown-trigger {
+  border-color: var(--color-teal);
+}
+
+.custom-dropdown-chevron {
+  font-size: 11px;
+  color: var(--color-gray-400);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.custom-dropdown.open .custom-dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-soft-gray);
+  padding: 6px;
+  z-index: 50;
+  max-height: 240px;
+  overflow-y: auto;
+  animation: dropdownOpen var(--duration-fast) var(--ease-bounce) both;
+}
+
+@keyframes dropdownOpen {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.custom-dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.custom-dropdown-option:active {
+  transform: scale(0.98);
+}
+
+.custom-dropdown-option:hover {
+  background: var(--color-soft-gray);
+}
+
+.custom-dropdown-option i {
+  font-size: 12px;
+  color: var(--color-emerald);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.custom-dropdown-option.selected {
+  color: var(--color-navy);
+  font-weight: 800;
+}
+
+.custom-dropdown-option.selected i {
+  opacity: 1;
 }
 
 .recent-list {

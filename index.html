@@ -159,6 +159,13 @@
           <span class="quick-action-desc">Pause the live scanner</span>
         </span>
       </button>
+      <button class="quick-action-item" data-quick-action="reenable-camera" id="quick-action-reenable-camera" role="menuitem" hidden>
+        <span class="quick-action-icon quick-action-icon--warn"><i class="fa-solid fa-camera-rotate" aria-hidden="true"></i></span>
+        <span class="quick-action-text">
+          <span class="quick-action-title">Re-enable Camera Access</span>
+          <span class="quick-action-desc">Permission was revoked — tap to reconnect</span>
+        </span>
+      </button>
       <button class="quick-action-item" data-quick-action="manual-add" role="menuitem">
         <span class="quick-action-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
         <span class="quick-action-text">
@@ -209,10 +216,13 @@
           <div class="scanner-viewport" id="scanner-viewport">
             <div id="scanner-reader"></div>
 
-            <!-- Camera permission needed / unavailable state (shown only if camera access fails) -->
+            <!-- Camera permission needed / unavailable / revoked state (shown only if camera access fails or is lost) -->
             <div class="scanner-placeholder" id="scanner-placeholder" hidden>
               <i class="fa-solid fa-camera" aria-hidden="true"></i>
               <p>Camera access is needed to scan products. Please allow camera permission and reload the app.</p>
+              <button class="btn btn-primary scanner-placeholder-btn" id="scanner-placeholder-retry" hidden>
+                <i class="fa-solid fa-camera-rotate" aria-hidden="true"></i> Enable Camera
+              </button>
             </div>
 
             <!-- Top bar: mode toggle + flashlight -->
@@ -237,6 +247,10 @@
             <!-- Scan frame overlay: adapts proportions per mode (square for QR, rectangular for barcode) -->
             <div class="scanner-overlay" id="scanner-overlay">
               <div class="scan-frame mode-qr" id="scan-frame">
+                <span class="scan-corner corner-tl" aria-hidden="true"></span>
+                <span class="scan-corner corner-tr" aria-hidden="true"></span>
+                <span class="scan-corner corner-bl" aria-hidden="true"></span>
+                <span class="scan-corner corner-br" aria-hidden="true"></span>
                 <div class="scan-laser" aria-hidden="true"></div>
               </div>
               <div class="scanner-hint">Align code within the frame</div>
@@ -317,12 +331,30 @@
             <input type="search" id="recent-search-input" class="recent-search-input" placeholder="Search invoice no., customer, item…">
           </div>
           <div class="recent-filter-row">
-            <select id="recent-date-filter" class="recent-date-filter">
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="week">Last 7 Days</option>
-              <option value="month">Last 30 Days</option>
-            </select>
+            <div class="custom-dropdown" id="recent-date-dropdown">
+              <button type="button" class="custom-dropdown-trigger" id="recent-date-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-dropdown-trigger-label" id="recent-date-dropdown-label">All Time</span>
+                <i class="fa-solid fa-chevron-down custom-dropdown-chevron" aria-hidden="true"></i>
+              </button>
+              <ul class="custom-dropdown-menu" id="recent-date-dropdown-menu" role="listbox" aria-label="Filter by date" hidden>
+                <li class="custom-dropdown-option selected" role="option" aria-selected="true" data-value="all">
+                  <span>All Time</span>
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                </li>
+                <li class="custom-dropdown-option" role="option" aria-selected="false" data-value="today">
+                  <span>Today</span>
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                </li>
+                <li class="custom-dropdown-option" role="option" aria-selected="false" data-value="week">
+                  <span>Last 7 Days</span>
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                </li>
+                <li class="custom-dropdown-option" role="option" aria-selected="false" data-value="month">
+                  <span>Last 30 Days</span>
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -566,6 +598,42 @@
     </div>
   </div>
 
+  <!-- Edit Cart Item Modal (rename / reprice an already-added item) -->
+  <div class="modal-backdrop" id="edit-item-modal" role="dialog" aria-modal="true" aria-labelledby="edit-item-title">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <span class="modal-title" id="edit-item-title">Edit Item</span>
+        <button class="icon-btn icon-btn--light modal-close tap-sm" id="edit-item-close" aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <p class="field-hint" id="edit-item-code-hint" style="margin-bottom:16px;">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        Changes apply to this bill<span id="edit-item-code-extra"></span>.
+      </p>
+      <form id="edit-item-form">
+        <div class="field">
+          <label class="field-label" for="edit-item-name">Product Name</label>
+          <input type="text" id="edit-item-name" class="field-input" placeholder="e.g. Parle-G Biscuit 100g" required autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="field-label" for="edit-item-price">Price</label>
+          <div class="input-group">
+            <span class="prefix">₹</span>
+            <input type="number" id="edit-item-price" class="field-input has-prefix" placeholder="0.00" min="0" step="0.01" inputmode="decimal" required>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="edit-item-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Confirm Dialog (Clear Cart / Remove item) -->
   <div class="modal-backdrop" id="confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
     <div class="modal">
@@ -742,6 +810,7 @@
   <script src="js/pwa-install.js"></script>
   <script src="js/scanner.js"></script>
   <script src="js/cart.js"></script>
+  <script src="js/cart-item-editor.js"></script>
   <script src="js/profile.js"></script>
   <script src="js/receipt.js"></script>
   <script src="js/billing.js"></script>

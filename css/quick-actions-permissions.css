@@ -277,6 +277,20 @@
   color: #dc2626;
 }
 
+/* "Re-enable Camera Access" only appears once permission has actually been
+   revoked, so it gets a warning treatment to stand out from the routine actions. */
+.quick-action-icon--warn {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.quick-action-icon--warn i {
+  color: #dc2626;
+}
+
+.quick-action-item[data-quick-action="reenable-camera"] .quick-action-title {
+  color: #dc2626;
+}
+
 /* Visual feedback while the scan button is being held, before the sheet opens */
 .nav-scan-btn.holding {
   transform: translateY(-22px) scale(0.94);
