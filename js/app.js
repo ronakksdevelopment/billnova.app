@@ -16,7 +16,6 @@
     Profile.init();
     Navigation.init();
     Cart.init();
-    CartItemEditor.init();
     Billing.init();
     await Recent.init();
     PwaInstall.init();

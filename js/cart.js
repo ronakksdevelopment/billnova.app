@@ -355,13 +355,89 @@ const Cart = (() => {
   }
 
   /**
-   * Opens the Edit Item modal (name + price) for the given cart item.
+   * Opens a custom in-app "Edit Item" popup (same slide-up modal style used
+   * everywhere else in the app, not a native browser prompt) prefilled with
+   * the item's current name/price. Confirming updates the item in place.
    * @param {string} id
    */
   function handleEditClick(id) {
     const item = items.find((i) => i.id === id);
-    if (!item || !window.CartItemEditor) return;
-    window.CartItemEditor.open(item);
+    if (!item) return;
+    openEditItemPopup(item);
+  }
+
+  /**
+   * Renders and wires the Edit Item popup directly (mirrors the confirm
+   * dialog's approach: grab elements fresh, prefill, attach one-shot
+   * listeners, open). Self-contained here so there's no separate module
+   * or init-order dependency that could silently fail to wire up.
+   * @param {{id:string, code:string|null, name:string, price:number}} item
+   */
+  function openEditItemPopup(item) {
+    const modalId = 'edit-item-modal';
+    const modalEl = document.getElementById(modalId);
+    const form = document.getElementById('edit-item-form');
+    const nameInput = document.getElementById('edit-item-name');
+    const priceInput = document.getElementById('edit-item-price');
+    const closeBtn = document.getElementById('edit-item-close');
+    const cancelBtn = document.getElementById('edit-item-cancel');
+    const codeExtraEl = document.getElementById('edit-item-code-extra');
+    if (!modalEl || !form || !nameInput || !priceInput) return;
+
+    // Prefill with the item's current data.
+    nameInput.value = item.name;
+    priceInput.value = item.price;
+    if (codeExtraEl) {
+      codeExtraEl.textContent = item.code
+        ? ' — this will also update the saved product for future scans'
+        : '';
+    }
+
+    const cleanup = () => {
+      form.removeEventListener('submit', onSubmit);
+      closeBtn?.removeEventListener('click', onCancel);
+      cancelBtn?.removeEventListener('click', onCancel);
+    };
+
+    const onCancel = () => {
+      cleanup();
+      ModalManager.close(modalId);
+    };
+
+    const onSubmit = async (e) => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+
+      if (!name || isNaN(price) || price < 0) {
+        Toast.error('Please enter a valid name and price.');
+        return;
+      }
+
+      updateItem(item.id, { name, price });
+
+      // Scanned items are backed by a permanent product record keyed by
+      // their code; keep that in sync too, so the next scan of the same
+      // code reflects the corrected name/price.
+      if (item.code) {
+        try {
+          await BillNovaDB.saveProduct({ code: item.code, name, price });
+        } catch (err) {
+          console.error('[Cart] Failed to update saved product', err);
+          Toast.error('Item updated in this bill, but saving it to your product list failed.');
+        }
+      }
+
+      Toast.success('Item updated');
+      cleanup();
+      ModalManager.close(modalId);
+    };
+
+    form.addEventListener('submit', onSubmit);
+    closeBtn?.addEventListener('click', onCancel);
+    cancelBtn?.addEventListener('click', onCancel);
+
+    ModalManager.open(modalId);
   }
 
   /**
