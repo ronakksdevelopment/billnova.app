@@ -16,6 +16,7 @@ const Scanner = (() => {
   let currentCameraIndex = 0;
   let isRunning = false;
   let isStarting = false;
+  let isStopping = false;
   let isTorchOn = false;
   let isManuallyDisabled = false; // true when the user turned the camera off via the eye button
   let currentMode = 'qr'; // 'qr' | 'barcode'
@@ -24,8 +25,9 @@ const Scanner = (() => {
   let onScanSuccessCallback = null;
 
   // Elements
-  let viewportEl, placeholderEl, topbarEl, overlayEl, flashlightBtn, cameraSwitchBtn, cameraToggleBtn;
-  let modeQrBtn, modeBarcodeBtn, successFlashEl, scanFrameEl, placeholderTextEl, placeholderIconEl, modeToggleEl;
+  let placeholderEl, topbarEl, overlayEl, flashlightBtn, cameraSwitchBtn, cameraToggleBtn;
+  let modeQrBtn, modeBarcodeBtn, modeToggleEl, successFlashEl, scanFrameEl;
+  let placeholderTextEl, placeholderIconEl;
 
   const QR_CONFIG = {
     fps: 12,
@@ -55,7 +57,6 @@ const Scanner = (() => {
   };
 
   function cacheElements() {
-    viewportEl = document.getElementById('scanner-viewport');
     placeholderEl = document.getElementById('scanner-placeholder');
     placeholderIconEl = placeholderEl.querySelector('i');
     placeholderTextEl = placeholderEl.querySelector('p');
@@ -88,6 +89,9 @@ const Scanner = (() => {
 
     html5QrCode = new Html5Qrcode(READER_ELEMENT_ID, /* verbose= */ false);
 
+    // Set the initial frame color/shape before the camera even starts.
+    updateScanFrame(currentMode, /* animate= */ false);
+
     // Start the live camera immediately, no user action required.
     start();
   }
@@ -105,7 +109,7 @@ const Scanner = (() => {
 
       if (!availableCameras || availableCameras.length === 0) {
         Toast.error('No camera found on this device.');
-        showPlaceholder();
+        showPlaceholder('unavailable');
         return;
       }
 
@@ -124,30 +128,33 @@ const Scanner = (() => {
     } catch (err) {
       console.error('[Scanner] Failed to start camera', err);
       Toast.error('Camera permission denied or unavailable.');
-      showPlaceholder();
+      showPlaceholder('unavailable');
     } finally {
       isStarting = false;
     }
   }
 
+  /**
+   * Shows the placeholder state. The eye/toggle button in the topbar always
+   * stays visible and clickable here; only the mode toggle, flashlight, and
+   * camera-switch controls hide, since they don't apply while there's no
+   * live stream.
+   * @param {'off'|'unavailable'} reason
+   */
   function showPlaceholder(reason) {
     placeholderEl.hidden = false;
     overlayEl.hidden = true;
-
-    // Keep the topbar itself visible so the eye button always stays
-    // reachable, but hide the mode toggle / flashlight / camera-switch
-    // controls since they don't apply while the camera is off.
     topbarEl.hidden = false;
     if (modeToggleEl) modeToggleEl.hidden = true;
     if (flashlightBtn) flashlightBtn.hidden = true;
     if (cameraSwitchBtn) cameraSwitchBtn.hidden = true;
 
     if (reason === 'off') {
-      if (placeholderIconEl) placeholderIconEl.className = 'fa-solid fa-eye-slash';
-      if (placeholderTextEl) placeholderTextEl.textContent = 'Camera is turned off. Tap the eye icon to scan again.';
+      placeholderIconEl.className = 'fa-solid fa-eye-slash';
+      placeholderTextEl.textContent = 'Camera is turned off. Tap the eye icon to scan again.';
     } else {
-      if (placeholderIconEl) placeholderIconEl.className = 'fa-solid fa-camera';
-      if (placeholderTextEl) placeholderTextEl.textContent = 'Camera access is needed to scan products. Please allow camera permission and reload the app.';
+      placeholderIconEl.className = 'fa-solid fa-camera';
+      placeholderTextEl.textContent = 'Camera access is needed to scan products. Please allow camera permission and reload the app.';
     }
   }
 
@@ -157,18 +164,17 @@ const Scanner = (() => {
     overlayEl.hidden = false;
     if (modeToggleEl) modeToggleEl.hidden = false;
     if (flashlightBtn) flashlightBtn.hidden = false;
-    // camera-switch stays governed by availableCameras.length, restored in start()/switchCamera()
+    // camera-switch stays governed by availableCameras.length
     if (cameraSwitchBtn) cameraSwitchBtn.hidden = availableCameras.length < 2;
   }
 
   function setCameraToggleUI(enabled) {
-    if (!cameraToggleBtn) return;
     const icon = cameraToggleBtn.querySelector('i');
     cameraToggleBtn.setAttribute('aria-pressed', String(enabled));
     cameraToggleBtn.setAttribute('aria-label', enabled ? 'Turn camera off' : 'Turn camera on');
     cameraToggleBtn.title = enabled ? 'Turn camera off' : 'Turn camera on';
     cameraToggleBtn.classList.toggle('off', !enabled);
-    if (icon) icon.className = enabled ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+    icon.className = enabled ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
   }
 
   /**
@@ -176,27 +182,30 @@ const Scanner = (() => {
    * scanner topbar. Independent of the navigation-driven stop()/resume():
    * once the user turns the camera off, it stays off even if they leave and
    * return to the Billing screen, until they tap the eye icon again.
+   *
+   * Guarded by isStopping/isStarting so rapid repeated taps can't overlap
+   * two start/stop calls on the underlying stream, which is what caused
+   * the flicker/glitch when toggling quickly.
    */
   async function toggleCameraEnabled() {
+    if (isStopping || isStarting) return;
+
     if (isManuallyDisabled) {
       isManuallyDisabled = false;
       setCameraToggleUI(true);
-      try {
-        await resume();
-      } catch (e) {
-        console.error('[Scanner] Resume after toggle failed', e);
-      }
+      await resume();
     } else {
-      // Flip UI + state immediately so the button always responds right
-      // away, even if the underlying stream teardown is slow or rejects.
       isManuallyDisabled = true;
       setCameraToggleUI(false);
-      showPlaceholder('off');
-      isRunning = false;
+      isStopping = true;
       try {
         await stopCameraStream();
+        isRunning = false;
+        showPlaceholder('off');
       } catch (e) {
         console.error('[Scanner] Stop after toggle failed', e);
+      } finally {
+        isStopping = false;
       }
     }
   }
@@ -216,20 +225,25 @@ const Scanner = (() => {
   }
 
   /**
-   * Stops the current camera stream (used before switching camera/mode, or
-   * when navigating away from the Billing screen).
+   * Stops the current camera stream and clears the library's rendered DOM
+   * (video/canvas elements) from the reader container. Skipping the clear()
+   * call is what left stale elements behind and caused the visual glitch on
+   * re-toggle; every stop now leaves the container clean for the next start.
    */
   async function stopCameraStream() {
     if (!html5QrCode) return;
     try {
       const state = typeof html5QrCode.getState === 'function' ? html5QrCode.getState() : null;
-      // Only call stop() if the library thinks it's actually scanning/paused;
-      // calling it from an unexpected state is what causes silent rejections.
       if (state === null || state === 2 /* SCANNING */ || state === 3 /* PAUSED */) {
         await html5QrCode.stop();
       }
     } catch (e) {
       // Already stopped or in a state that can't be stopped; ignore.
+    }
+    try {
+      html5QrCode.clear();
+    } catch (e) {
+      // Nothing rendered yet; ignore.
     }
   }
 
@@ -267,7 +281,7 @@ const Scanner = (() => {
    * overlay or artificial delay.
    */
   async function switchCamera() {
-    if (availableCameras.length < 2) return;
+    if (availableCameras.length < 2 || isStarting || isStopping) return;
     currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
     currentCameraId = availableCameras[currentCameraIndex].id;
 
@@ -301,12 +315,11 @@ const Scanner = (() => {
 
   /**
    * Switches scan mode between QR and Barcode, restarting the stream with
-   * the new format config and updating the scan frame proportions:
-   * a square frame for QR codes, a wider rectangular frame for barcodes.
+   * the new format config and updating the scan frame proportions/color.
    * @param {'qr'|'barcode'} mode
    */
   async function switchMode(mode) {
-    if (mode === currentMode) return;
+    if (mode === currentMode || isStarting || isStopping) return;
     currentMode = mode;
 
     modeQrBtn.classList.toggle('active', mode === 'qr');
@@ -314,7 +327,7 @@ const Scanner = (() => {
     modeBarcodeBtn.classList.toggle('active', mode === 'barcode');
     modeBarcodeBtn.setAttribute('aria-selected', String(mode === 'barcode'));
 
-    updateScanFrame(mode);
+    updateScanFrame(mode, /* animate= */ true);
 
     if (isRunning) {
       await stopCameraStream();
@@ -327,17 +340,22 @@ const Scanner = (() => {
   }
 
   /**
-   * Updates the scan frame's shape to match the active mode: a square
-   * frame for QR codes, a wider rectangular frame for barcodes.
+   * Updates the scan frame's shape and color to match the active mode
+   * (square teal frame for QR, wide amber frame for Barcode), and — unless
+   * this is the initial setup — slides the frame in from the direction
+   * matching the switch: QR -> Barcode enters from the left, Barcode -> QR
+   * enters from the right. The frame border itself is a permanent, static
+   * outline (not a one-off flash); only its position animates on switch.
    * @param {'qr'|'barcode'} mode
+   * @param {boolean} animate
    */
-  function updateScanFrame(mode) {
+  function updateScanFrame(mode, animate) {
     if (!scanFrameEl) return;
     scanFrameEl.classList.toggle('mode-qr', mode === 'qr');
     scanFrameEl.classList.toggle('mode-barcode', mode === 'barcode');
 
-    // Slide direction: QR -> Barcode enters from the left,
-    // Barcode -> QR enters from the right.
+    if (!animate) return;
+
     scanFrameEl.classList.remove('slide-from-left', 'slide-from-right');
     void scanFrameEl.offsetWidth; // restart animation
     scanFrameEl.classList.add(mode === 'barcode' ? 'slide-from-left' : 'slide-from-right');
@@ -354,25 +372,27 @@ const Scanner = (() => {
 
   /**
    * Resumes the scanner after it was stopped by navigating away from the
-   * Billing screen. Starts instantly, no loading screen. Does nothing if
-   * the user manually turned the camera off via the eye button — that
-   * choice persists across navigation until they turn it back on.
+   * Billing screen, or by the eye button. Starts instantly, no loading
+   * screen. Does nothing if the user manually turned the camera off via
+   * the eye button — that choice persists across navigation until they
+   * turn it back on.
    */
   async function resume() {
     if (isManuallyDisabled) return;
     if (isRunning || isStarting) return;
-    if (!currentCameraId) {
-      await start();
-      return;
-    }
     isStarting = true;
     try {
+      if (!currentCameraId) {
+        isStarting = false;
+        await start();
+        return;
+      }
       await startCameraStream(currentCameraId);
       hidePlaceholder();
       isRunning = true;
     } catch (err) {
       console.error('[Scanner] Failed to resume camera', err);
-      showPlaceholder();
+      showPlaceholder('unavailable');
     } finally {
       isStarting = false;
     }
