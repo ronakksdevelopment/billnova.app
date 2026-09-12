@@ -155,16 +155,13 @@ const QuickActions = (() => {
    * "Re-enable Camera Access" needs to replace the normal camera toggle.
    */
   function refreshLabels() {
-    const modeItem = sheetEl.querySelector('[data-quick-action="toggle-mode"]');
     const cameraItem = sheetEl.querySelector('[data-quick-action="toggle-camera"]');
     const flashItem = sheetEl.querySelector('[data-quick-action="toggle-flashlight"]');
     const reenableItem = document.getElementById('quick-action-reenable-camera');
 
-    if (modeItem && window.Scanner) {
-      const mode = Scanner.getMode();
-      modeItem.querySelector('.quick-action-title').textContent =
-        mode === 'qr' ? 'Switch to Barcode' : 'Switch to QR';
-    }
+    // "Toggle Scan Mode", "Toggle Camera", and "Toggle Flashlight" all keep
+    // static titles since each one switches both directions — only icons
+    // (camera/flashlight) update to reflect current state.
 
     if (cameraItem && window.Scanner) {
       const on = Scanner.isCameraOn();
@@ -177,8 +174,8 @@ const QuickActions = (() => {
       const torchOn = Scanner.isTorchOn && Scanner.isTorchOn();
       flashItem.querySelector('.quick-action-icon i').className =
         torchOn ? 'fa-solid fa-bolt' : 'fa-solid fa-bolt-lightning';
-      flashItem.querySelector('.quick-action-title').textContent =
-        torchOn ? 'Turn Off Flashlight' : 'Turn On Flashlight';
+      // Title stays static "Toggle Flashlight" (it both turns on and off) —
+      // only the icon reflects current state, same pattern as the camera row.
       // Flashlight needs the camera actively running to do anything useful.
       flashItem.classList.toggle('quick-action-item--disabled', !camOn);
     }
