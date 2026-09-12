@@ -1,0 +1,284 @@
+/* ==========================================================================
+   BillNova India: Permissions Overlay + Scan Quick Actions
+   ========================================================================== */
+
+/* ---------- Permissions overlay (first run) ---------- */
+
+.permissions-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-splash);
+  background: rgba(7, 26, 61, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+
+@media (min-width: 480px) {
+  .permissions-overlay {
+    align-items: center;
+    padding: var(--space-5);
+  }
+}
+
+.permissions-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-white);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  padding: var(--space-6) var(--space-5) calc(var(--space-5) + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: permissionsSlideUp var(--duration-fast) var(--ease-standard) both;
+}
+
+@media (min-width: 480px) {
+  .permissions-card {
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+  }
+}
+
+@keyframes permissionsSlideUp {
+  0% { transform: translateY(24px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.permissions-icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-emerald);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+}
+
+.permissions-icon-circle i {
+  font-size: 24px;
+  color: var(--text-inverse);
+}
+
+.permissions-card h2 {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  color: var(--color-navy);
+  margin-bottom: var(--space-2);
+}
+
+.permissions-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--color-gray-500);
+  max-width: 320px;
+  margin-bottom: var(--space-5);
+}
+
+.permissions-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.permission-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-soft-gray);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.permission-row-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.permission-row-icon i {
+  font-size: 16px;
+  color: var(--color-teal-dark);
+}
+
+.permission-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.permission-row-title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.permission-row-desc {
+  font-size: 12px;
+  color: var(--color-gray-500);
+  line-height: 1.35;
+}
+
+.permission-row-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 76px;
+  height: 34px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-navy);
+  color: var(--text-inverse);
+  font-size: 12px;
+  font-weight: 700;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.permission-row-check {
+  display: none;
+  font-size: 13px;
+}
+
+.permission-row.granted .permission-row-btn {
+  background: var(--color-emerald);
+}
+
+.permission-row.granted .permission-row-btn-label {
+  display: none;
+}
+
+.permission-row.granted .permission-row-check {
+  display: inline-block;
+}
+
+.permission-row.denied .permission-row-btn {
+  background: var(--color-gray-400);
+}
+
+.permissions-skip {
+  margin-top: var(--space-3);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-gray-500);
+  padding: var(--space-2);
+}
+
+/* ---------- Scan button quick actions (long-press bottom sheet) ---------- */
+
+.quick-actions-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-backdrop);
+  background: rgba(7, 26, 61, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.quick-actions-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.quick-actions-sheet {
+  width: 100%;
+  max-width: var(--max-content-width);
+  background: var(--color-white);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  padding: var(--space-3) var(--space-4) calc(var(--space-4) + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform var(--duration-fast) var(--ease-bounce);
+}
+
+.quick-actions-backdrop.open .quick-actions-sheet {
+  transform: translateY(0);
+}
+
+.quick-actions-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-soft-gray);
+  margin: var(--space-2) auto var(--space-3);
+}
+
+.quick-action-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-2);
+  text-align: left;
+  border-radius: var(--radius-md);
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.quick-action-item:active {
+  background: var(--color-soft-gray);
+}
+
+.quick-action-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-soft-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quick-action-icon i {
+  font-size: 16px;
+  color: var(--color-navy);
+}
+
+.quick-action-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.quick-action-title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.quick-action-desc {
+  font-size: 12px;
+  color: var(--color-gray-500);
+}
+
+.quick-action-item[data-quick-action="clear-cart"] .quick-action-icon i,
+.quick-action-item[data-quick-action="clear-cart"] .quick-action-title {
+  color: #dc2626;
+}
+
+/* Visual feedback while the scan button is being held, before the sheet opens */
+.nav-scan-btn.holding {
+  transform: translateY(-22px) scale(0.94);
+  box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.18), var(--shadow-lg);
+}

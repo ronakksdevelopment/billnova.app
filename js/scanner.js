@@ -19,6 +19,7 @@ const Scanner = (() => {
   let isStopping = false;
   let isTorchOn = false;
   let isManuallyDisabled = false; // true when the user turned the camera off via the eye button
+  let pausedTrack = null; // the video track disabled by the eye button, kept alive to avoid re-prompting for permission
   let currentMode = 'qr'; // 'qr' | 'barcode'
   let lastScannedCode = null;
   let lastScannedAt = 0;
@@ -179,13 +180,17 @@ const Scanner = (() => {
 
   /**
    * Manually turns the live camera off or back on via the eye button in the
-   * scanner topbar. Independent of the navigation-driven stop()/resume():
-   * once the user turns the camera off, it stays off even if they leave and
-   * return to the Billing screen, until they tap the eye icon again.
+   * scanner topbar (or the quick-actions sheet). Independent of the
+   * navigation-driven stop()/resume(): once the user turns the camera off,
+   * it stays off even if they leave and return to the Billing screen, until
+   * they tap the eye icon again.
    *
-   * Guarded by isStopping/isStarting so rapid repeated taps can't overlap
-   * two start/stop calls on the underlying stream, which is what caused
-   * the flicker/glitch when toggling quickly.
+   * Turning off pauses the video track rather than fully stopping the
+   * stream/calling html5QrCode.stop(). Fully stopping releases the camera
+   * device, and starting a fresh getUserMedia() afterwards can make the
+   * browser re-prompt for camera permission even though it was already
+   * granted. Pausing just disables the track, so the same permission grant
+   * and stream stay alive and turning back on is instant with no reprompt.
    */
   async function toggleCameraEnabled() {
     if (isStopping || isStarting) return;
@@ -193,20 +198,55 @@ const Scanner = (() => {
     if (isManuallyDisabled) {
       isManuallyDisabled = false;
       setCameraToggleUI(true);
-      await resume();
+      if (pausedTrack) {
+        pausedTrack.enabled = true;
+        pausedTrack = null;
+        hidePlaceholder();
+        isRunning = true;
+      } else {
+        // No track was paused (e.g. camera never started yet); fall back
+        // to a normal resume, which will request the stream if needed.
+        await resume();
+      }
     } else {
       isManuallyDisabled = true;
       setCameraToggleUI(false);
-      isStopping = true;
-      try {
-        await stopCameraStream();
+      const track = getActiveVideoTrack();
+      if (track) {
+        track.enabled = false;
+        pausedTrack = track;
         isRunning = false;
         showPlaceholder('off');
-      } catch (e) {
-        console.error('[Scanner] Stop after toggle failed', e);
-      } finally {
-        isStopping = false;
+      } else {
+        // No live track to pause; fall back to a full stop.
+        isStopping = true;
+        try {
+          await stopCameraStream();
+          isRunning = false;
+          showPlaceholder('off');
+        } catch (e) {
+          console.error('[Scanner] Stop after toggle failed', e);
+        } finally {
+          isStopping = false;
+        }
       }
+    }
+  }
+
+  /**
+   * Returns the currently active camera video track, if any, so it can be
+   * enabled/disabled directly without tearing down the whole stream.
+   * @returns {MediaStreamTrack|null}
+   */
+  function getActiveVideoTrack() {
+    try {
+      const videoEl = document.querySelector('#scanner-reader video');
+      const stream = videoEl && videoEl.srcObject;
+      if (!stream || typeof stream.getVideoTracks !== 'function') return null;
+      const tracks = stream.getVideoTracks();
+      return tracks && tracks.length ? tracks[0] : null;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -364,10 +404,14 @@ const Scanner = (() => {
   /**
    * Stops the scanner entirely. Called when the user navigates away from
    * the Billing screen, and resumed via resume() when they come back.
+   * Always fully releases the camera device (unlike the eye-button toggle,
+   * which only pauses the track), since leaving the screen should free the
+   * hardware regardless of the manual on/off state.
    */
   async function stop() {
     await stopCameraStream();
     isRunning = false;
+    pausedTrack = null;
   }
 
   /**
@@ -398,5 +442,24 @@ const Scanner = (() => {
     }
   }
 
-  return { init, start, stop, resume };
+  /**
+   * Current scan mode, exposed so other UI (e.g. the scan button's
+   * long-press quick actions) can label itself correctly without
+   * duplicating scanner state.
+   * @returns {'qr'|'barcode'}
+   */
+  function getMode() {
+    return currentMode;
+  }
+
+  /**
+   * Whether the live camera stream is currently running (not manually
+   * turned off via the eye button and not in an error/no-camera state).
+   * @returns {boolean}
+   */
+  function isCameraOn() {
+    return isRunning;
+  }
+
+  return { init, start, stop, resume, getMode, isCameraOn };
 })();

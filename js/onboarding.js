@@ -11,6 +11,7 @@ const Onboarding = (() => {
   let dots = [];
   let overlayEl = null;
   let nextBtn = null;
+  let onFinishCallback = null;
 
   function hasCompletedOnboarding() {
     try {
@@ -40,8 +41,13 @@ const Onboarding = (() => {
     skipBtn.addEventListener('click', finish);
   }
 
-  function show() {
+  /**
+   * Shows the onboarding overlay.
+   * @param {Function} [onFinish] - called once the user finishes or skips onboarding.
+   */
+  function show(onFinish) {
     if (!overlayEl) return;
+    onFinishCallback = typeof onFinish === 'function' ? onFinish : null;
     overlayEl.hidden = false;
     currentSlide = 0;
     updateSlideUI();
@@ -70,6 +76,11 @@ const Onboarding = (() => {
   function finish() {
     markComplete();
     if (overlayEl) overlayEl.hidden = true;
+    if (onFinishCallback) {
+      const cb = onFinishCallback;
+      onFinishCallback = null;
+      cb();
+    }
   }
 
   return { init, show, hasCompletedOnboarding };

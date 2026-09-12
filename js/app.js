@@ -20,6 +20,8 @@
     await Recent.init();
     PwaInstall.init();
     Onboarding.init();
+    Permissions.init();
+    QuickActions.init();
 
     setupNewProductModal();
     setupManualProductModal();
@@ -33,8 +35,14 @@
     document.getElementById('splash-screen').classList.add('hidden');
     document.getElementById('app-root').hidden = false;
 
+    // First run: show onboarding, then the permissions screen right after it.
+    // Returning users skip both since each is remembered independently.
     if (!Onboarding.hasCompletedOnboarding()) {
-      Onboarding.show();
+      Onboarding.show(() => {
+        if (!Permissions.hasBeenShown()) Permissions.show();
+      });
+    } else if (!Permissions.hasBeenShown()) {
+      Permissions.show();
     }
   }
 
