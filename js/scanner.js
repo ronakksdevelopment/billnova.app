@@ -647,6 +647,17 @@ const Scanner = (() => {
     return permissionRevoked;
   }
 
+  /**
+   * Whether the scanner is currently mid start/stop/switch. Other UI
+   * (quick actions) should wait for this to clear before clicking a
+   * scanner control, since toggleCameraEnabled()/switchMode() silently
+   * no-op while a start/stop is already in flight.
+   * @returns {boolean}
+   */
+  function isBusy() {
+    return isStarting || isStopping;
+  }
+
   return {
     init,
     start,
@@ -654,6 +665,7 @@ const Scanner = (() => {
     resume,
     getMode,
     isCameraOn,
+    isBusy,
     isPermissionRevoked,
     requestPermissionAndRestart,
   };

@@ -173,8 +173,43 @@ const QuickActions = (() => {
 
     // Navigate to the Billing screen first for actions that need the
     // scanner/cart visible, matching what a normal tap on Scan would do.
+    const wasOnHome = !window.Navigation || document.getElementById('page-home')?.classList.contains('active');
     if (window.Navigation) Navigation.goToPage('home');
 
+    // Navigating home may trigger Scanner.resume(), which is async and
+    // sets an internal isStarting/isStopping guard. Actions that click a
+    // scanner control (toggle-camera, toggle-mode) must wait for that to
+    // settle first, or the click silently no-ops while the guard is up —
+    // this was why the quick-action camera toggle appeared "broken" when
+    // triggered from the Profile/Recent screens.
+    const runAction = () => runQuickAction(action);
+    if (!wasOnHome && (action === 'toggle-camera' || action === 'toggle-mode')) {
+      waitForScannerIdle(runAction);
+    } else {
+      runAction();
+    }
+  }
+
+  /**
+   * Polls until the scanner is no longer mid start/stop (or times out),
+   * then runs the callback. Keeps quick actions reliable right after a
+   * page switch triggers Scanner.resume() in the background.
+   * @param {Function} cb
+   */
+  function waitForScannerIdle(cb) {
+    const deadline = Date.now() + 2000;
+    const check = () => {
+      const busy = window.Scanner && Scanner.isBusy && Scanner.isBusy();
+      if (!busy || Date.now() > deadline) {
+        cb();
+      } else {
+        setTimeout(check, 50);
+      }
+    };
+    setTimeout(check, 50);
+  }
+
+  function runQuickAction(action) {
     switch (action) {
       case 'toggle-mode': {
         const modeBtn = Scanner.getMode() === 'qr'
