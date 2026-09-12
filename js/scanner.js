@@ -169,13 +169,23 @@ const Scanner = (() => {
     if (isManuallyDisabled) {
       isManuallyDisabled = false;
       setCameraToggleUI(true);
-      await resume();
+      try {
+        await resume();
+      } catch (e) {
+        console.error('[Scanner] Resume after toggle failed', e);
+      }
     } else {
+      // Flip UI + state immediately so the button always responds right
+      // away, even if the underlying stream teardown is slow or rejects.
       isManuallyDisabled = true;
       setCameraToggleUI(false);
-      await stopCameraStream();
-      isRunning = false;
       showPlaceholder('off');
+      isRunning = false;
+      try {
+        await stopCameraStream();
+      } catch (e) {
+        console.error('[Scanner] Stop after toggle failed', e);
+      }
     }
   }
 
@@ -198,12 +208,16 @@ const Scanner = (() => {
    * when navigating away from the Billing screen).
    */
   async function stopCameraStream() {
-    if (html5QrCode && isRunning) {
-      try {
+    if (!html5QrCode) return;
+    try {
+      const state = typeof html5QrCode.getState === 'function' ? html5QrCode.getState() : null;
+      // Only call stop() if the library thinks it's actually scanning/paused;
+      // calling it from an unexpected state is what causes silent rejections.
+      if (state === null || state === 2 /* SCANNING */ || state === 3 /* PAUSED */) {
         await html5QrCode.stop();
-      } catch (e) {
-        // Already stopped; ignore
       }
+    } catch (e) {
+      // Already stopped or in a state that can't be stopped; ignore.
     }
   }
 
@@ -309,6 +323,12 @@ const Scanner = (() => {
     if (!scanFrameEl) return;
     scanFrameEl.classList.toggle('mode-qr', mode === 'qr');
     scanFrameEl.classList.toggle('mode-barcode', mode === 'barcode');
+
+    // Slide direction: QR -> Barcode enters from the left,
+    // Barcode -> QR enters from the right.
+    scanFrameEl.classList.remove('slide-from-left', 'slide-from-right');
+    void scanFrameEl.offsetWidth; // restart animation
+    scanFrameEl.classList.add(mode === 'barcode' ? 'slide-from-left' : 'slide-from-right');
   }
 
   /**
