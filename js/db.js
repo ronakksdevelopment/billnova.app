@@ -135,7 +135,7 @@ const BillNovaDB = (() => {
 
   /**
    * Saves (creates or updates) a product record permanently.
-   * @param {{code: string, name: string, price: number}} product
+   * @param {{code: string, name: string, price: number, photo?: string|null}} product
    * @returns {Promise<void>}
    */
   async function saveProduct(product) {
@@ -147,6 +147,7 @@ const BillNovaDB = (() => {
         code: product.code,
         name: product.name,
         price: Number(product.price),
+        photo: product.photo || null,
         createdAt: product.createdAt || new Date().toISOString(),
       };
       const req = store.put(record);

@@ -18,6 +18,9 @@ const Cart = (() => {
   let notesInput, discountInput, gstInput;
   let summaryTotalItems, summaryTotalQty, summaryDiscount, summaryGst, summaryGrandTotal;
 
+  // Photo picker for the Edit Item modal (created once, reused on every open).
+  let editItemPhotoPicker = null;
+
   function cacheElements() {
     listEl = document.getElementById('cart-list');
     emptyStateEl = document.getElementById('cart-empty-state');
@@ -57,6 +60,10 @@ const Cart = (() => {
 
     document.getElementById('clear-cart-btn').addEventListener('click', handleClearCart);
 
+    if (window.PhotoPicker) {
+      editItemPhotoPicker = PhotoPicker.create('edit-item');
+    }
+
     render();
   }
 
@@ -64,7 +71,7 @@ const Cart = (() => {
    * Adds a scanned or manually-entered product to the cart.
    * If the item already exists (same code, or same manual name for codeless items),
    * increments its quantity instead of duplicating a row.
-   * @param {{code?: string|null, name: string, price: number, qty?: number}} product
+   * @param {{code?: string|null, name: string, price: number, qty?: number, photo?: string|null}} product
    */
   function addItem(product) {
     const qtyToAdd = product.qty || 1;
@@ -75,6 +82,9 @@ const Cart = (() => {
 
     if (existing) {
       existing.qty += qtyToAdd;
+      // A re-scan/re-add can bring a newer photo (e.g. product was edited
+      // since); keep the item's photo in sync rather than leaving it stale.
+      if (product.photo) existing.photo = product.photo;
     } else {
       items.push({
         id: Utils.generateId(),
@@ -82,6 +92,7 @@ const Cart = (() => {
         name: product.name,
         price: Number(product.price),
         qty: qtyToAdd,
+        photo: product.photo || null,
       });
     }
 
@@ -244,8 +255,10 @@ const Cart = (() => {
         <button class="cart-item-trash tap-sm" data-action="remove" aria-label="Remove ${Utils.escapeHtml(item.name)}">
           <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
         </button>
-        <div class="cart-item-icon">
-          <i class="fa-solid ${item.code ? 'fa-qrcode' : 'fa-basket-shopping'}" aria-hidden="true"></i>
+        <div class="cart-item-icon${item.photo ? ' has-photo' : ''}">
+          ${item.photo
+            ? `<img src="${item.photo}" alt="${Utils.escapeHtml(item.name)}">`
+            : `<i class="fa-solid ${item.code ? 'fa-qrcode' : 'fa-basket-shopping'}" aria-hidden="true"></i>`}
         </div>
         <div class="cart-item-info">
           <div class="cart-item-name-row">
@@ -387,6 +400,7 @@ const Cart = (() => {
     // Prefill with the item's current data.
     nameInput.value = item.name;
     priceInput.value = item.price;
+    if (editItemPhotoPicker) editItemPhotoPicker.setPhoto(item.photo || null);
     if (codeExtraEl) {
       codeExtraEl.textContent = item.code
         ? ' — this will also update the saved product for future scans'
@@ -414,14 +428,16 @@ const Cart = (() => {
         return;
       }
 
-      updateItem(item.id, { name, price });
+      const photo = editItemPhotoPicker ? editItemPhotoPicker.getPhoto() : item.photo;
+
+      updateItem(item.id, { name, price, photo });
 
       // Scanned items are backed by a permanent product record keyed by
       // their code; keep that in sync too, so the next scan of the same
-      // code reflects the corrected name/price.
+      // code reflects the corrected name/price/photo.
       if (item.code) {
         try {
-          await BillNovaDB.saveProduct({ code: item.code, name, price });
+          await BillNovaDB.saveProduct({ code: item.code, name, price, photo });
         } catch (err) {
           console.error('[Cart] Failed to update saved product', err);
           Toast.error('Item updated in this bill, but saving it to your product list failed.');
@@ -454,6 +470,9 @@ const Cart = (() => {
     }
     if (typeof updates.price === 'number' && !isNaN(updates.price) && updates.price >= 0) {
       item.price = updates.price;
+    }
+    if (typeof updates.photo !== 'undefined') {
+      item.photo = updates.photo || null;
     }
     render();
     persistToStorage();

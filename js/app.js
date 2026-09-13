@@ -7,6 +7,10 @@
 (() => {
   let pendingScannedCode = null; // holds code while "new product" modal is open
 
+  // Photo pickers for the New Product (scanned) and manual Add Product modals.
+  let newProductPhotoPicker = null;
+  let manualProductPhotoPicker = null;
+
   document.addEventListener('DOMContentLoaded', init);
 
   async function init() {
@@ -66,6 +70,7 @@
         pendingScannedCode = code;
         document.getElementById('new-product-code').textContent = code;
         document.getElementById('new-product-form').reset();
+        if (newProductPhotoPicker) newProductPhotoPicker.reset();
         ModalManager.open('new-product-modal');
       }
     } catch (err) {
@@ -82,6 +87,10 @@
     const form = document.getElementById('new-product-form');
     const closeBtn = document.getElementById('new-product-close');
     const cancelBtn = document.getElementById('new-product-cancel');
+
+    if (window.PhotoPicker) {
+      newProductPhotoPicker = PhotoPicker.create('new-product');
+    }
 
     const closeModal = () => {
       ModalManager.close('new-product-modal');
@@ -103,9 +112,11 @@
         return;
       }
 
+      const photo = newProductPhotoPicker ? newProductPhotoPicker.getPhoto() : null;
+
       try {
-        const saved = await BillNovaDB.saveProduct({ code: pendingScannedCode, name, price });
-        Cart.addItem({ code: saved.code, name: saved.name, price: saved.price, qty: 1 });
+        const saved = await BillNovaDB.saveProduct({ code: pendingScannedCode, name, price, photo });
+        Cart.addItem({ code: saved.code, name: saved.name, price: saved.price, qty: 1, photo: saved.photo });
         ModalManager.close('new-product-modal');
         pendingScannedCode = null;
       } catch (err) {
@@ -123,6 +134,10 @@
     const closeBtn = document.getElementById('manual-product-close');
     const cancelBtn = document.getElementById('manual-product-cancel');
 
+    if (window.PhotoPicker) {
+      manualProductPhotoPicker = PhotoPicker.create('manual-product');
+    }
+
     const closeModal = () => ModalManager.close('manual-product-modal');
 
     closeBtn.addEventListener('click', closeModal);
@@ -139,9 +154,12 @@
         return;
       }
 
-      Cart.addItem({ code: null, name, price, qty });
+      const photo = manualProductPhotoPicker ? manualProductPhotoPicker.getPhoto() : null;
+
+      Cart.addItem({ code: null, name, price, qty, photo });
       form.reset();
       document.getElementById('manual-product-qty').value = 1;
+      if (manualProductPhotoPicker) manualProductPhotoPicker.reset();
       closeModal();
     });
   }
@@ -150,6 +168,7 @@
     document.getElementById('manual-add-fab').addEventListener('click', () => {
       document.getElementById('manual-product-form').reset();
       document.getElementById('manual-product-qty').value = 1;
+      if (manualProductPhotoPicker) manualProductPhotoPicker.reset();
       ModalManager.open('manual-product-modal');
     });
   }

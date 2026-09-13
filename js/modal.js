@@ -7,6 +7,7 @@ const ModalManager = (() => {
 
   let activeModal = null;
   let lastFocusedElement = null;
+  let openModalCount = 0; // supports nested modals (e.g. confirm() opened from within another flow)
 
   /**
    * Opens a modal by its element id, trapping focus for accessibility.
@@ -21,6 +22,15 @@ const ModalManager = (() => {
 
     modalEl.classList.add('open');
     document.body.style.overflow = 'hidden';
+    openModalCount += 1;
+
+    // Pause barcode/QR detection while any modal is open. Without this, a
+    // code still sitting under the camera (e.g. while the user is typing
+    // its name/price into the New Product modal) kept re-triggering and
+    // could reopen/reset the very form they were filling in.
+    if (window.Scanner && typeof Scanner.pauseDetection === 'function') {
+      Scanner.pauseDetection();
+    }
 
     // Focus the first focusable element inside for accessibility
     const focusable = modalEl.querySelector('input, button, select, textarea');
@@ -41,6 +51,13 @@ const ModalManager = (() => {
     modalEl.classList.remove('open');
     document.body.style.overflow = '';
     document.removeEventListener('keydown', handleEscape);
+    openModalCount = Math.max(0, openModalCount - 1);
+
+    // Only resume scanning once every modal is closed, in case one was
+    // opened on top of another (e.g. a confirm dialog).
+    if (openModalCount === 0 && window.Scanner && typeof Scanner.resumeDetection === 'function') {
+      Scanner.resumeDetection();
+    }
 
     if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
       lastFocusedElement.focus();

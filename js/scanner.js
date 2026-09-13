@@ -8,7 +8,14 @@
 
 const Scanner = (() => {
   const READER_ELEMENT_ID = 'scanner-reader';
-  const DUPLICATE_COOLDOWN_MS = 2000; // prevents rapid re-scans of the same code
+  // Minimum time that must pass between any two *accepted* scans (even of
+  // different codes), so a jittery/duplicate frame decode can't double-fire.
+  const SCAN_COOLDOWN_MS = 1000;
+  // How many consecutive failed-decode frames count as "the code has left
+  // the camera view". Once we hit this, the same code can be scanned again;
+  // until then it's treated as still sitting under the camera and ignored,
+  // instead of being silently re-added every couple of seconds.
+  const FRAMES_TO_CONSIDER_CODE_GONE = 5;
 
   let html5QrCode = null;
   let currentCameraId = null;
@@ -22,7 +29,9 @@ const Scanner = (() => {
   let pausedTrack = null; // the video track disabled by the eye button, kept alive to avoid re-prompting for permission
   let currentMode = 'qr'; // 'qr' | 'barcode'
   let lastScannedCode = null;
-  let lastScannedAt = 0;
+  let lastScanAt = 0;
+  let framesMissedSinceMatch = 0; // consecutive failed decodes since the last accepted scan
+  let scanningPaused = false; // true while a modal is open awaiting user input (e.g. New Product)
   let onScanSuccessCallback = null;
   let permissionRevoked = false; // true when the OS/browser pulled camera access away mid-session
   let permissionStatusHandle = null; // navigator.permissions PermissionStatus, kept for its change listener
@@ -410,7 +419,7 @@ const Scanner = (() => {
       cameraId,
       config,
       handleDecodedText,
-      () => { /* per-frame decode failure is normal & silent */ }
+      handleDecodeFailure
     );
   }
 
@@ -438,16 +447,39 @@ const Scanner = (() => {
   }
 
   /**
-   * Handles a successfully decoded QR/barcode string, guarding against duplicate rapid scans.
+   * Handles a successfully decoded QR/barcode string.
+   *
+   * Guards against three distinct sources of duplicate/incorrect adds:
+   *  1. `scanningPaused` - a modal (e.g. "New Product") is open awaiting the
+   *     user's input, so every decode is ignored until it closes. Without
+   *     this, a code still sitting under the camera kept re-triggering the
+   *     same "unknown code" flow while the user was mid-typing.
+   *  2. Same-code guard - once a code is accepted, it's ignored on every
+   *     subsequent frame until it's been out of view for
+   *     FRAMES_TO_CONSIDER_CODE_GONE consecutive frames (tracked via
+   *     handleDecodeFailure). This stops a barcode held steady under the
+   *     camera from being silently re-added every couple of seconds.
+   *  3. SCAN_COOLDOWN_MS - a flat minimum gap between any two *different*
+   *     accepted scans, so quick flicker/misreads can't double-fire.
    * @param {string} decodedText
    */
   function handleDecodedText(decodedText) {
-    const now = Date.now();
-    if (decodedText === lastScannedCode && (now - lastScannedAt) < DUPLICATE_COOLDOWN_MS) {
-      return; // duplicate rapid scan, ignore
+    if (scanningPaused) return;
+
+    framesMissedSinceMatch = 0;
+
+    if (decodedText === lastScannedCode) {
+      // Still the same code sitting in frame - wait for it to leave view.
+      return;
     }
+
+    const now = Date.now();
+    if (now - lastScanAt < SCAN_COOLDOWN_MS) {
+      return;
+    }
+
     lastScannedCode = decodedText;
-    lastScannedAt = now;
+    lastScanAt = now;
 
     // Feedback: vibration + beep + green flash
     Utils.vibrate([60, 40, 60]);
@@ -457,6 +489,43 @@ const Scanner = (() => {
     if (typeof onScanSuccessCallback === 'function') {
       onScanSuccessCallback(decodedText);
     }
+  }
+
+  /**
+   * Called on every camera frame that does NOT decode to a code. Used purely
+   * to detect when a previously-scanned code has left the camera's view, so
+   * it can be scanned again next time it's presented.
+   */
+  function handleDecodeFailure() {
+    if (!lastScannedCode) return;
+    framesMissedSinceMatch += 1;
+    if (framesMissedSinceMatch >= FRAMES_TO_CONSIDER_CODE_GONE) {
+      lastScannedCode = null;
+      framesMissedSinceMatch = 0;
+    }
+  }
+
+  /**
+   * Pauses all scan detection without touching the camera stream itself.
+   * Call this whenever a modal opens that needs the user's undivided
+   * attention (e.g. the "New Product" name/price form), so a code still
+   * sitting under the camera can't keep re-triggering while they're typing.
+   */
+  function pauseDetection() {
+    scanningPaused = true;
+  }
+
+  /**
+   * Resumes scan detection and clears the last-scanned guard, so whatever
+   * is under the camera right now (even if it's the same code as before)
+   * is treated as a fresh, intentional scan rather than being blocked by a
+   * stale cooldown from before the pause.
+   */
+  function resumeDetection() {
+    scanningPaused = false;
+    lastScannedCode = null;
+    lastScanAt = 0;
+    framesMissedSinceMatch = 0;
   }
 
   function flashSuccess() {
@@ -720,5 +789,7 @@ const Scanner = (() => {
     isBusy,
     isPermissionRevoked,
     requestPermissionAndRestart,
+    pauseDetection,
+    resumeDetection,
   };
 })();

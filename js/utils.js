@@ -100,6 +100,49 @@ const Utils = (() => {
     return Math.min(Math.max(value, min), max);
   }
 
+  /**
+   * Reads an image file, downscales it to fit within maxDim x maxDim
+   * (preserving aspect ratio) and re-encodes it as a compressed JPEG data
+   * URL. Keeps product photos small enough to live comfortably in
+   * IndexedDB/localStorage instead of storing huge original camera photos.
+   * @param {File} file
+   * @param {number} maxDim - max width/height in pixels
+   * @param {number} quality - JPEG quality 0-1
+   * @returns {Promise<string>} data URL
+   */
+  function resizeImageFile(file, maxDim = 480, quality = 0.75) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(reader.error || new Error('File read failed'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Invalid image'));
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width >= height) {
+              height = Math.round(height * (maxDim / width));
+              width = maxDim;
+            } else {
+              width = Math.round(width * (maxDim / height));
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   return {
     formatCurrency,
     generateId,
@@ -108,5 +151,6 @@ const Utils = (() => {
     playBeep,
     escapeHtml,
     clamp,
+    resizeImageFile,
   };
 })();
