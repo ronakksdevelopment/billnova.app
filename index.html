@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/photo-picker.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/bottom-nav.css">
   <link rel="stylesheet" href="css/quick-actions-permissions.css">
@@ -538,6 +539,23 @@
       </p>
       <form id="new-product-form">
         <div class="field">
+          <label class="field-label">Product Photo</label>
+          <div class="photo-picker">
+            <div class="photo-picker-preview" id="new-product-photo-preview" tabindex="0" role="button" aria-label="Add product photo">
+              <i class="fa-solid fa-image" aria-hidden="true"></i>
+            </div>
+            <div class="photo-picker-actions">
+              <button type="button" class="photo-picker-btn" id="new-product-photo-btn">
+                <i class="fa-solid fa-camera" aria-hidden="true"></i> Add Photo
+              </button>
+              <button type="button" class="photo-picker-remove" id="new-product-photo-remove" hidden>
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remove
+              </button>
+            </div>
+            <input type="file" accept="image/*" id="new-product-photo-input" hidden>
+          </div>
+        </div>
+        <div class="field">
           <label class="field-label" for="new-product-name">Product Name</label>
           <input type="text" id="new-product-name" class="field-input" placeholder="e.g. Parle-G Biscuit 100g" required autocomplete="off">
         </div>
@@ -569,6 +587,23 @@
         </button>
       </div>
       <form id="manual-product-form">
+        <div class="field">
+          <label class="field-label">Product Photo</label>
+          <div class="photo-picker">
+            <div class="photo-picker-preview" id="manual-product-photo-preview" tabindex="0" role="button" aria-label="Add product photo">
+              <i class="fa-solid fa-image" aria-hidden="true"></i>
+            </div>
+            <div class="photo-picker-actions">
+              <button type="button" class="photo-picker-btn" id="manual-product-photo-btn">
+                <i class="fa-solid fa-camera" aria-hidden="true"></i> Add Photo
+              </button>
+              <button type="button" class="photo-picker-remove" id="manual-product-photo-remove" hidden>
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remove
+              </button>
+            </div>
+            <input type="file" accept="image/*" id="manual-product-photo-input" hidden>
+          </div>
+        </div>
         <div class="field">
           <label class="field-label" for="manual-product-name">Product Name</label>
           <input type="text" id="manual-product-name" class="field-input" placeholder="e.g. Loose Rice (1kg)" required autocomplete="off">
@@ -609,6 +644,23 @@
         Changes apply to this bill<span id="edit-item-code-extra"></span>.
       </p>
       <form id="edit-item-form">
+        <div class="field">
+          <label class="field-label">Product Photo</label>
+          <div class="photo-picker">
+            <div class="photo-picker-preview" id="edit-item-photo-preview" tabindex="0" role="button" aria-label="Add product photo">
+              <i class="fa-solid fa-image" aria-hidden="true"></i>
+            </div>
+            <div class="photo-picker-actions">
+              <button type="button" class="photo-picker-btn" id="edit-item-photo-btn">
+                <i class="fa-solid fa-camera" aria-hidden="true"></i> Add Photo
+              </button>
+              <button type="button" class="photo-picker-remove" id="edit-item-photo-remove" hidden>
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remove
+              </button>
+            </div>
+            <input type="file" accept="image/*" id="edit-item-photo-input" hidden>
+          </div>
+        </div>
         <div class="field">
           <label class="field-label" for="edit-item-name">Product Name</label>
           <input type="text" id="edit-item-name" class="field-input" placeholder="e.g. Parle-G Biscuit 100g" required autocomplete="off">
@@ -797,6 +849,7 @@
   <script src="js/toast.js"></script>
   <script src="js/loading.js"></script>
   <script src="js/modal.js"></script>
+  <script src="js/photo-picker.js"></script>
   <script src="js/onboarding.js"></script>
   <script src="js/permissions.js"></script>
   <script src="js/pwa-install.js"></script>
