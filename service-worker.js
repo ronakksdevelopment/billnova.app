@@ -4,7 +4,7 @@
    serves everything from cache, falling back to network for anything new.
    ========================================================================== */
 
-const CACHE_VERSION = 'billnova-v1.1.0';
+const CACHE_VERSION = 'billnova-v1.2.0';
 const CACHE_NAME = `billnova-cache-${CACHE_VERSION}`;
 
 // App shell: everything needed for the app to boot and run fully offline.
@@ -16,12 +16,15 @@ const APP_SHELL = [
   './css/variables.css',
   './css/base.css',
   './css/components.css',
+  './css/photo-picker.css',
   './css/layout.css',
   './css/bottom-nav.css',
+  './css/quick-actions-permissions.css',
   './css/scanner.css',
   './css/cart.css',
   './css/billing-flow.css',
   './css/receipt.css',
+  './css/label.css',
   './css/recent.css',
   './css/profile.css',
   './css/themes.css',
@@ -31,15 +34,19 @@ const APP_SHELL = [
   './js/toast.js',
   './js/loading.js',
   './js/modal.js',
+  './js/photo-picker.js',
   './js/onboarding.js',
+  './js/permissions.js',
   './js/pwa-install.js',
   './js/scanner.js',
   './js/cart.js',
   './js/profile.js',
   './js/receipt.js',
+  './js/label.js',
   './js/billing.js',
   './js/recent.js',
   './js/navigation.js',
+  './js/quick-actions.js',
   './js/app.js',
 
   './assets/icons/icon-72.png',

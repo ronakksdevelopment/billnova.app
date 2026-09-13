@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="css/cart.css">
   <link rel="stylesheet" href="css/billing-flow.css">
   <link rel="stylesheet" href="css/receipt.css">
+  <link rel="stylesheet" href="css/label.css">
   <link rel="stylesheet" href="css/recent.css">
   <link rel="stylesheet" href="css/profile.css">
   <link rel="stylesheet" href="css/themes.css">
@@ -619,6 +620,11 @@
           <label class="field-label" for="manual-product-qty">Quantity</label>
           <input type="number" id="manual-product-qty" class="field-input" placeholder="1" min="1" step="1" value="1" inputmode="numeric">
         </div>
+        <label class="checkbox-row" for="manual-product-generate-label">
+          <input type="checkbox" id="manual-product-generate-label" checked>
+          <i class="fa-solid fa-tags" aria-hidden="true"></i>
+          <span>Generate a QR/Barcode label for this item (for printing &amp; future quick scans)</span>
+        </label>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" id="manual-product-cancel">Cancel</button>
           <button type="submit" class="btn btn-primary">
@@ -626,6 +632,58 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Product Label Modal (QR / Barcode, switchable, save as PNG or print) -->
+  <div class="modal-backdrop" id="label-modal" role="dialog" aria-modal="true" aria-labelledby="label-title">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <span class="modal-title" id="label-title">Product Label</span>
+        <button class="icon-btn icon-btn--light modal-close tap-sm" id="label-close" aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <p class="label-hint">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>This item had no printed code, so a unique one was generated. Print this label and stick it on the item — next time, just scan it.</span>
+      </p>
+
+      <div class="label-summary">
+        <div class="label-product-name" id="label-product-name">-</div>
+        <div class="label-product-price" id="label-product-price">-</div>
+      </div>
+
+      <div class="label-tabs" role="tablist" aria-label="Label type">
+        <button class="label-tab active" id="label-tab-qr" role="tab" aria-selected="true">
+          <i class="fa-solid fa-qrcode" aria-hidden="true"></i> QR Code
+        </button>
+        <button class="label-tab" id="label-tab-barcode" role="tab" aria-selected="false">
+          <i class="fa-solid fa-barcode" aria-hidden="true"></i> Barcode
+        </button>
+      </div>
+
+      <div class="label-preview-container">
+        <div class="label-preview-wrap">
+          <div class="label-preview" id="label-preview"></div>
+          <div class="label-code-text" id="label-code-text">-</div>
+        </div>
+      </div>
+
+      <div class="label-actions">
+        <button type="button" class="btn btn-secondary" id="label-save-btn">
+          <i class="fa-solid fa-download" aria-hidden="true"></i> Save as PNG
+        </button>
+        <button type="button" class="btn btn-secondary" id="label-print-btn">
+          <i class="fa-solid fa-print" aria-hidden="true"></i> Print
+        </button>
+      </div>
+
+      <div class="modal-actions modal-actions--single">
+        <button type="button" class="btn btn-primary" id="label-done-btn">Done</button>
+      </div>
     </div>
   </div>
 
@@ -826,6 +884,9 @@
   <div id="receipt-export-container" class="receipt-offscreen" aria-hidden="true"></div>
   <div id="receipt-print-container" class="receipt-print-only" aria-hidden="true"></div>
 
+  <!-- Hidden product label print target (print only, never shown directly) -->
+  <div id="label-print-container" class="label-print-only" aria-hidden="true"></div>
+
   <!-- Toast container -->
   <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
@@ -857,6 +918,7 @@
   <script src="js/cart.js"></script>
   <script src="js/profile.js"></script>
   <script src="js/receipt.js"></script>
+  <script src="js/label.js"></script>
   <script src="js/billing.js"></script>
   <script src="js/recent.js"></script>
   <script src="js/navigation.js"></script>

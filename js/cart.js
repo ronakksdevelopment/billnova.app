@@ -252,6 +252,9 @@ const Cart = (() => {
         <button class="cart-item-edit tap-sm" data-action="edit" aria-label="Edit ${Utils.escapeHtml(item.name)}" title="Edit name or price">
           <i class="fa-solid fa-pen" aria-hidden="true"></i>
         </button>
+        <button class="cart-item-label tap-sm" data-action="label" aria-label="${item.code ? 'View' : 'Generate'} label for ${Utils.escapeHtml(item.name)}" title="${item.code ? 'View / print QR & barcode label' : 'Generate & print QR/barcode label'}">
+          <i class="fa-solid ${item.code ? 'fa-eye' : 'fa-tags'}" aria-hidden="true"></i>
+        </button>
         <button class="cart-item-trash tap-sm" data-action="remove" aria-label="Remove ${Utils.escapeHtml(item.name)}">
           <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
         </button>
@@ -298,6 +301,9 @@ const Cart = (() => {
     });
     listEl.querySelectorAll('[data-action="edit"]').forEach((btn) => {
       btn.addEventListener('click', () => handleEditClick(getRowId(btn)));
+    });
+    listEl.querySelectorAll('[data-action="label"]').forEach((btn) => {
+      btn.addEventListener('click', () => handleLabelClick(getRowId(btn)));
     });
     // Tapping the quantity value turns it into an inline editable field —
     // no native browser prompt/dialog, styled to match the qty pill itself.
@@ -377,6 +383,37 @@ const Cart = (() => {
     const item = items.find((i) => i.id === id);
     if (!item) return;
     openEditItemPopup(item);
+  }
+
+  /**
+   * Handles the "Label" (tag) icon on a cart row. If the item has no code
+   * yet (manual entry, or a scanned item somehow without one), generates a
+   * unique one, saves it as a permanent product record so a future scan of
+   * the printed label finds it instantly, and updates this cart item to
+   * carry that code. Either way, opens the switchable QR/Barcode label
+   * modal so it can be previewed, saved as PNG, or printed.
+   * @param {string} id
+   */
+  async function handleLabelClick(id) {
+    const item = items.find((i) => i.id === id);
+    if (!item || typeof Label === 'undefined') return;
+
+    if (item.code) {
+      Label.open({ code: item.code, name: item.name, price: item.price, photo: item.photo });
+      return;
+    }
+
+    try {
+      const code = Label.generateProductCode();
+      const saved = await BillNovaDB.saveProduct({ code, name: item.name, price: item.price, photo: item.photo });
+      item.code = saved.code;
+      render();
+      persistToStorage();
+      Label.open({ code: saved.code, name: saved.name, price: saved.price, photo: saved.photo });
+    } catch (err) {
+      console.error('[Cart] Failed to generate/save label code', err);
+      Toast.error('Could not generate a label for this item.');
+    }
   }
 
   /**

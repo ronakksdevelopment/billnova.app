@@ -163,11 +163,12 @@
     closeBtn.addEventListener('click', closeModal);
     cancelBtn.addEventListener('click', closeModal);
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('manual-product-name').value.trim();
       const price = parseFloat(document.getElementById('manual-product-price').value);
       const qty = parseInt(document.getElementById('manual-product-qty').value, 10) || 1;
+      const wantsLabel = document.getElementById('manual-product-generate-label')?.checked;
 
       if (!name || isNaN(price) || price < 0) {
         Toast.error('Please enter a valid name and price.');
@@ -176,11 +177,38 @@
 
       const photo = manualProductPhotoPicker ? manualProductPhotoPicker.getPhoto() : null;
 
-      Cart.addItem({ code: null, name, price, qty, photo });
+      // Products added without a scannable code have nothing a future scan
+      // could match against. When the shopkeeper wants one, generate a
+      // unique internal code now, save it as a permanent product record
+      // (so the printed label is picked up instantly next time it's
+      // scanned), and add this cart item under that same code.
+      let code = null;
+      if (wantsLabel && typeof Label !== 'undefined') {
+        try {
+          code = Label.generateProductCode();
+          await BillNovaDB.saveProduct({ code, name, price, photo });
+        } catch (err) {
+          console.error('[App] Failed to save generated product code', err);
+          Toast.error('Item will be added, but its label could not be generated.');
+          code = null;
+        }
+      }
+
+      Cart.addItem({ code, name, price, qty, photo });
       form.reset();
       document.getElementById('manual-product-qty').value = 1;
+      const labelCheckbox = document.getElementById('manual-product-generate-label');
+      if (labelCheckbox) labelCheckbox.checked = true;
       if (manualProductPhotoPicker) manualProductPhotoPicker.reset();
       closeModal();
+
+      if (code && typeof Label !== 'undefined') {
+        // Let the modal-close animation finish before opening the label
+        // preview so the two transitions don't fight each other.
+        window.setTimeout(() => {
+          Label.open({ code, name, price, photo });
+        }, 260);
+      }
     });
   }
 

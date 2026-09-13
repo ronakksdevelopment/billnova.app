@@ -1,0 +1,19 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Local dev servers / tooling (this project has no build step, but ignore
+# common artifacts in case any get introduced later)
+node_modules/
+dist/
+build/
+*.log
+
+# Local env files
+.env
+.env.local
