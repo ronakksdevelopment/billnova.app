@@ -28,7 +28,7 @@ const ModalManager = (() => {
     // code still sitting under the camera (e.g. while the user is typing
     // its name/price into the New Product modal) kept re-triggering and
     // could reopen/reset the very form they were filling in.
-    if (window.Scanner && typeof Scanner.pauseDetection === 'function') {
+    if (typeof Scanner !== 'undefined' && typeof Scanner.pauseDetection === 'function') {
       Scanner.pauseDetection();
     }
 
@@ -55,7 +55,7 @@ const ModalManager = (() => {
 
     // Only resume scanning once every modal is closed, in case one was
     // opened on top of another (e.g. a confirm dialog).
-    if (openModalCount === 0 && window.Scanner && typeof Scanner.resumeDetection === 'function') {
+    if (openModalCount === 0 && typeof Scanner !== 'undefined' && typeof Scanner.resumeDetection === 'function') {
       Scanner.resumeDetection();
     }
 

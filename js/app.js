@@ -58,12 +58,32 @@
    */
   async function handleScannedCode(code) {
     try {
-      const existingProduct = await BillNovaDB.getProductByCode(code);
+      let existingProduct = await BillNovaDB.getProductByCode(code);
+
+      // Backwards-compatible fallback: a barcode may have been saved
+      // earlier under its raw UPC-A (12-digit) form, before scans were
+      // normalized to the equivalent 13-digit EAN-13 code. If the
+      // normalized code isn't found, check the un-prefixed legacy form too
+      // so an already-known product isn't mistaken for a brand new one.
+      if (!existingProduct && /^0\d{12}$/.test(code)) {
+        existingProduct = await BillNovaDB.getProductByCode(code.slice(1));
+        if (existingProduct) {
+          // Migrate it to live under the normalized code too, so future
+          // scans find it directly without needing this fallback.
+          try {
+            await BillNovaDB.saveProduct({ ...existingProduct, code });
+          } catch (err) {
+            console.error('[App] Failed to migrate legacy product code', err);
+          }
+        }
+      }
+
       if (existingProduct) {
         Cart.addItem({
-          code: existingProduct.code,
+          code, // always add/save under the normalized code going forward
           name: existingProduct.name,
           price: existingProduct.price,
+          photo: existingProduct.photo,
           qty: 1,
         });
       } else {
@@ -88,7 +108,7 @@
     const closeBtn = document.getElementById('new-product-close');
     const cancelBtn = document.getElementById('new-product-cancel');
 
-    if (window.PhotoPicker) {
+    if (typeof PhotoPicker !== 'undefined') {
       newProductPhotoPicker = PhotoPicker.create('new-product');
     }
 
@@ -134,7 +154,7 @@
     const closeBtn = document.getElementById('manual-product-close');
     const cancelBtn = document.getElementById('manual-product-cancel');
 
-    if (window.PhotoPicker) {
+    if (typeof PhotoPicker !== 'undefined') {
       manualProductPhotoPicker = PhotoPicker.create('manual-product');
     }
 

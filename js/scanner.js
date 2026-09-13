@@ -14,8 +14,10 @@ const Scanner = (() => {
   // How many consecutive failed-decode frames count as "the code has left
   // the camera view". Once we hit this, the same code can be scanned again;
   // until then it's treated as still sitting under the camera and ignored,
-  // instead of being silently re-added every couple of seconds.
-  const FRAMES_TO_CONSIDER_CODE_GONE = 5;
+  // instead of being silently re-added every couple of seconds. Set high
+  // enough (~0.6s at 12fps) to ride out brief autofocus/motion-blur blips
+  // without falsely thinking the barcode was removed.
+  const FRAMES_TO_CONSIDER_CODE_GONE = 8;
 
   let html5QrCode = null;
   let currentCameraId = null;
@@ -447,6 +449,30 @@ const Scanner = (() => {
   }
 
   /**
+   * Normalizes a decoded barcode value so the SAME physical barcode always
+   * maps to the same stored product code, regardless of which symbology the
+   * decoder happened to guess on a given read.
+   *
+   * The concrete real-world case: with both UPC_A and EAN_13 formats
+   * enabled (needed since Indian retail packaging uses both), the exact
+   * same barcode can decode as an 12-digit UPC-A on one scan and as its
+   * 13-digit EAN-13 equivalent (UPC-A prefixed with "0") on the next. Left
+   * unnormalized, the app treats these as two different products, so a
+   * product that's already in the list gets prompted as "new" again a scan
+   * or two later. EAN-13 is the canonical/wider form, so every UPC-A read
+   * is upgraded to it before it's used as a lookup/storage key.
+   * @param {string} text
+   * @returns {string}
+   */
+  function normalizeCode(text) {
+    const trimmed = (text || '').trim();
+    if (/^\d{12}$/.test(trimmed)) {
+      return '0' + trimmed; // UPC-A -> equivalent EAN-13
+    }
+    return trimmed;
+  }
+
+  /**
    * Handles a successfully decoded QR/barcode string.
    *
    * Guards against three distinct sources of duplicate/incorrect adds:
@@ -466,9 +492,13 @@ const Scanner = (() => {
   function handleDecodedText(decodedText) {
     if (scanningPaused) return;
 
+    // Only barcodes (not QR text) are subject to the UPC-A/EAN-13 mixup;
+    // leave arbitrary QR payloads exactly as decoded.
+    const code = currentMode === 'barcode' ? normalizeCode(decodedText) : decodedText.trim();
+
     framesMissedSinceMatch = 0;
 
-    if (decodedText === lastScannedCode) {
+    if (code === lastScannedCode) {
       // Still the same code sitting in frame - wait for it to leave view.
       return;
     }
@@ -478,7 +508,7 @@ const Scanner = (() => {
       return;
     }
 
-    lastScannedCode = decodedText;
+    lastScannedCode = code;
     lastScanAt = now;
 
     // Feedback: vibration + beep + green flash
@@ -487,7 +517,7 @@ const Scanner = (() => {
     flashSuccess();
 
     if (typeof onScanSuccessCallback === 'function') {
-      onScanSuccessCallback(decodedText);
+      onScanSuccessCallback(code);
     }
   }
 

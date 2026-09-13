@@ -60,7 +60,7 @@ const Cart = (() => {
 
     document.getElementById('clear-cart-btn').addEventListener('click', handleClearCart);
 
-    if (window.PhotoPicker) {
+    if (typeof PhotoPicker !== 'undefined') {
       editItemPhotoPicker = PhotoPicker.create('edit-item');
     }
 
