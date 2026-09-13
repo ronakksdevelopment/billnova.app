@@ -1,0 +1,123 @@
+/* ==========================================================================
+   BillNova India: Product Photo Picker
+   Custom-styled photo upload control used in the New Product, Add Product
+   and Edit Item modals (no native file-input chrome shown to the user).
+   ========================================================================== */
+
+.photo-picker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.photo-picker-preview {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: rgba(34, 197, 94, 0.10);
+  border: 2px dashed rgba(7, 26, 61, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              transform var(--duration-fast) var(--ease-standard);
+}
+
+.photo-picker-preview:hover {
+  border-color: var(--color-emerald);
+}
+
+.photo-picker-preview:active {
+  transform: scale(0.96);
+}
+
+.photo-picker-preview i {
+  font-size: 22px;
+  color: var(--color-emerald-dark);
+}
+
+.photo-picker-preview.has-photo {
+  border-style: solid;
+  border-color: var(--border-soft);
+  background: var(--surface-card);
+}
+
+.photo-picker-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-picker-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.photo-picker-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--color-emerald-dark);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.photo-picker-btn:hover {
+  background: rgba(34, 197, 94, 0.20);
+}
+
+.photo-picker-btn:active {
+  transform: scale(0.97);
+}
+
+.photo-picker-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 6px;
+  border: none;
+  background: none;
+  color: var(--color-danger);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.photo-picker-remove:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Cart / product list thumbnail ---------- */
+.cart-item-icon.has-photo {
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+}
+
+.cart-item-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+[data-theme="dark"] .photo-picker-preview {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+[data-theme="dark"] .photo-picker-preview.has-photo {
+  background: #101827;
+  border-color: #2A3650;
+}
