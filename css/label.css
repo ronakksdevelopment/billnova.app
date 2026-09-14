@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Product Label (QR / Barcode) Styles
+   Rasiddoo v1.0: Product Label (QR / Barcode) Styles
    Switchable label preview modal + the off-screen/print-only label card
    used for the PNG export and the browser print flow.
    ========================================================================== */
@@ -15,7 +15,7 @@
 }
 
 .label-hint i {
-  color: var(--color-teal-dark);
+  color: var(--color-bright-green-dark);
   margin-top: 2px;
 }
 

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Product Photo Picker
+   Rasiddoo v1.0: Product Photo Picker
    Wires the custom (non-native-looking) photo upload control used in the
    New Product / Add Product / Edit Item modals: a tappable preview thumbnail
    plus Add/Change/Remove buttons, backed by a hidden <input type="file">.

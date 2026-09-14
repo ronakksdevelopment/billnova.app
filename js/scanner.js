@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Live Scanner
+   Rasiddoo v1.0: Live Scanner
    Opens instantly when the Billing screen loads, no start button and no
    loading screens. Rear/front camera switch, flashlight, manual on/off
    toggle, QR + Barcode modes with an adaptive scan frame, and a

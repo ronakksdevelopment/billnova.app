@@ -1,12 +1,12 @@
 /* ==========================================================================
-   BillNova India: Profile Page
+   Rasiddoo v1.0: Profile Page
    ========================================================================== */
 
 .profile-header-card {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  background: var(--color-navy);
+  background: var(--color-emerald);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   color: var(--text-inverse);
@@ -100,12 +100,12 @@
 }
 
 .swatch-light {
-  background: #F3F4F6;
-  border: 2px solid #D1D5DB;
+  background: var(--color-off-white);
+  border: 2px solid var(--color-soft-gray);
 }
 
 .swatch-dark {
-  background: #0B1220;
+  background: var(--color-charcoal);
 }
 
 .profile-data-actions {
@@ -142,7 +142,7 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-sm);
-  background: rgba(34, 197, 94, 0.10);
+  background: rgba(24, 201, 100, 0.10);
   color: var(--color-emerald-dark);
   display: flex;
   align-items: center;

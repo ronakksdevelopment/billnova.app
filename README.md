@@ -1,8 +1,20 @@
-# BillNova India
+# Rasiddoo v1.0
 
 **Scan. Add. Bill.** Instant, offline-first billing for every Indian business.
 
-BillNova India is an installable Progressive Web App (PWA) that turns any phone or tablet into a point-of-sale billing counter — scan a product's barcode or QR code, watch it land in the cart, and generate a professional GST-ready receipt in seconds. No server, no sign-up, no internet required after the first load.
+Rasiddoo is an installable Progressive Web App (PWA) that turns any phone or tablet into a point-of-sale billing counter — scan a product's barcode or QR code, watch it land in the cart, and generate a professional GST-ready receipt in seconds. No server, no sign-up, no internet required after the first load.
+
+> 🎨 **Brand**
+>
+> Rasiddoo's identity is built directly from its logo: a receipt with a barcode and a confirmation checkmark. The palette lives as CSS custom properties in `css/variables.css`:
+>
+> | Token | Hex | Use |
+> |---|---|---|
+> | `--color-emerald` | `#006B3C` | Primary brand color — headers, primary surfaces |
+> | `--color-bright-green` | `#18C964` | Active states, scanning, success, confirmations |
+> | `--color-yellow` | `#F7C928` | Highlights, payment/transaction accents, badges |
+> | `--color-white` / `--color-off-white` | `#FFFFFF` / `#F8FAF7` | Surfaces, receipt-style content |
+> | `--color-charcoal` | `#101513` | Text, dark-mode surfaces, strong contrast |
 
 > 📸 **Screenshots**
 >
@@ -58,7 +70,7 @@ All third-party libraries are vendored locally under `vendor/` — the only exte
 ## Project Structure
 
 ```
-BillNova-India/
+Rasiddoo/
 ├── index.html                  # Single-page app shell; all screens live here
 ├── manifest.json                # PWA manifest (name, icons, theme, display mode)
 ├── service-worker.js            # Offline cache-first strategy + app shell pre-cache
@@ -109,7 +121,7 @@ BillNova-India/
 
 ## Getting Started
 
-BillNova India is a static site — there is no build step, no `npm install`, and no server-side code. Any static file host works.
+Rasiddoo is a static site — there is no build step, no `npm install`, and no server-side code. Any static file host works.
 
 ### Run it locally
 
@@ -145,7 +157,7 @@ All paths in `index.html`, `manifest.json`, and `service-worker.js` are relative
 
 **Desktop (Chrome/Edge):** open the site, click the install icon in the address bar, or use the in-app install button in the header.
 
-Once installed, BillNova India launches full-screen like a native app, with its own icon and no browser chrome.
+Once installed, Rasiddoo launches full-screen like a native app, with its own icon and no browser chrome.
 
 ---
 
@@ -180,7 +192,7 @@ The only thing that ever touches the network is the Google Fonts stylesheet, whi
 
 ## Browser Support
 
-BillNova India targets modern evergreen browsers with PWA and camera support: Chrome, Edge, and Firefox on desktop/Android, and Safari on iOS/iPadOS 16.4+. Camera access requires a secure context (`https://` or `localhost`).
+Rasiddoo targets modern evergreen browsers with PWA and camera support: Chrome, Edge, and Firefox on desktop/Android, and Safari on iOS/iPadOS 16.4+. Camera access requires a secure context (`https://` or `localhost`).
 
 ---
 

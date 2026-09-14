@@ -1,11 +1,11 @@
 /* ==========================================================================
-   BillNova India: Receipt Generator
+   Rasiddoo v1.0: Receipt Generator
    Builds a professional Indian thermal-style tall receipt for a completed
    bill, and exports it as PDF (html2canvas + jsPDF), print, or WhatsApp share.
    ========================================================================== */
 
 const Receipt = (() => {
-  const INVOICE_SEQ_KEY = 'billnova_invoice_seq';
+  const INVOICE_SEQ_KEY = 'rasiddoo_invoice_seq';
 
   /**
    * Generates the next sequential invoice number, e.g. BN-2026-000123
@@ -79,7 +79,7 @@ const Receipt = (() => {
       <div class="receipt" id="receipt-render-target">
         <div class="r-header">
           <img src="assets/icons/icon-192.png" alt="" class="r-logo" crossorigin="anonymous">
-          <div class="r-shop-name">${Utils.escapeHtml(bill.shopName || 'BillNova India')}</div>
+          <div class="r-shop-name">${Utils.escapeHtml(bill.shopName || 'Rasiddoo')}</div>
           ${bill.shopContact ? `<div class="r-shop-contact">${Utils.escapeHtml(bill.shopContact)}</div>` : ''}
         </div>
 
@@ -118,7 +118,7 @@ const Receipt = (() => {
 
         <div class="r-footer">
           <div class="r-thankyou">${Utils.escapeHtml(bill.footerMessage || 'Thank you for shopping with us!')}</div>
-          <div class="r-powered">Billed with BillNova India</div>
+          <div class="r-powered">Billed with Rasiddoo</div>
         </div>
       </div>
     `;
@@ -216,12 +216,12 @@ const Receipt = (() => {
       const fileName = `${bill.invoiceNumber}.png`;
       const file = new File([blob], fileName, { type: 'image/png' });
 
-      const shareText = `Receipt from ${bill.shopName || 'BillNova India'}, ${bill.invoiceNumber}, Total ${bill.currencySymbol || '₹'}${bill.grandTotal.toFixed(2)}`;
+      const shareText = `Receipt from ${bill.shopName || 'Rasiddoo'}, ${bill.invoiceNumber}, Total ${bill.currencySymbol || '₹'}${bill.grandTotal.toFixed(2)}`;
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: 'BillNova India Receipt',
+          title: 'Rasiddoo Receipt',
           text: shareText,
         });
         Toast.success('Shared successfully');

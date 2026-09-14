@@ -1,10 +1,10 @@
 /* ==========================================================================
-   BillNova India: Onboarding (Scan → Add → Bill)
+   Rasiddoo v1.0: Onboarding (Scan → Add → Bill)
    Shown only on first visit; persisted via localStorage flag.
    ========================================================================== */
 
 const Onboarding = (() => {
-  const STORAGE_KEY = 'billnova_onboarding_complete';
+  const STORAGE_KEY = 'rasiddoo_onboarding_complete';
 
   let currentSlide = 0;
   let slides = [];

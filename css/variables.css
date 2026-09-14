@@ -1,40 +1,48 @@
 /* ==========================================================================
-   BillNova India: Design Tokens
-   Premium solid-color system + spacing + typography scale
+   Rasiddoo v1.0: Design Tokens
+   Premium solid-color system + spacing + typography scale, derived from
+   the Rasiddoo logo (deep emerald, bright green, warm yellow, charcoal).
    ========================================================================== */
 
 :root {
-  /* Brand Colors */
-  --color-navy: #071A3D;
-  --color-navy-light: #0E2A5C;
-  --color-navy-lighter: #163A73;
-  --color-emerald: #22C55E;
-  --color-emerald-dark: #16A34A;
-  --color-teal: #2DD4BF;
-  --color-teal-dark: #14B8A6;
+  /* ---------- Brand Colors (Rasiddoo core palette) ---------- */
+  --color-emerald: #006B3C;        /* deep emerald / retail green — brand foundation */
+  --color-emerald-dark: #00512D;   /* pressed / darker emerald for depth */
+  --color-emerald-light: #0A7F49;  /* lighter emerald for hovers on dark surfaces */
+  --color-bright-green: #18C964;   /* active states, success, scanning, confirmation */
+  --color-bright-green-dark: #12A852;
+  --color-yellow: #F7C928;         /* highlights, payment/transaction cues, badges — use as a background with dark text, not as small text/icon color (fails contrast on white) */
+  --color-yellow-dark: #DDAF14;
   --color-white: #FFFFFF;
-  --color-soft-gray: #E5E7EB;
-  --color-gray-500: #6B7280;
-  --color-gray-400: #9CA3AF;
-  --color-danger: #EF4444;
-  --color-danger-dark: #DC2626;
-  --color-warning: #F59E0B;
+  --color-off-white: #F8FAF7;      /* warm off-white surfaces, receipt-like areas */
+  --color-charcoal: #101513;       /* dark text, dark-mode background, strong contrast */
+  --color-charcoal-soft: #111714;
 
-  /* Solid surfaces (flat, no gradients or blur) */
-  --surface-card: #FFFFFF;
-  --surface-dark: var(--color-navy);
-  --surface-overlay: rgba(7, 26, 61, 0.55);
+  /* Neutral grays kept close to the charcoal family (not blue-tinted) */
+  --color-soft-gray: #EEF2EF;
+  --color-gray-500: #5B665F;
+  --color-gray-400: #8A948C;
+
+  /* Status colors — kept out of the core brand family but harmonized */
+  --color-danger: #E5484D;
+  --color-danger-dark: #C93A3E;
+  --color-warning: var(--color-yellow);
+
+  /* ---------- Solid surfaces (flat, no gradients or blur) ---------- */
+  --surface-card: var(--color-white);
+  --surface-dark: var(--color-charcoal);
+  --surface-overlay: rgba(16, 21, 19, 0.60);
   --surface-tint: rgba(255, 255, 255, 0.12);
   --surface-tint-strong: rgba(255, 255, 255, 0.18);
-  --border-soft: rgba(7, 26, 61, 0.08);
+  --border-soft: rgba(16, 21, 19, 0.08);
 
-  /* Text */
-  --text-primary: #0B1220;
-  --text-secondary: #4B5563;
+  /* ---------- Text ---------- */
+  --text-primary: var(--color-charcoal);
+  --text-secondary: #4B554E;
   --text-inverse: #FFFFFF;
-  --text-muted: #9CA3AF;
+  --text-muted: #68746D;
 
-  /* Radius */
+  /* ---------- Radius ---------- */
   --radius-xs: 8px;
   --radius-sm: 12px;
   --radius-md: 18px;
@@ -42,7 +50,7 @@
   --radius-xl: 32px;
   --radius-full: 999px;
 
-  /* Spacing scale */
+  /* ---------- Spacing scale ---------- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -53,12 +61,12 @@
   --space-10: 40px;
   --space-12: 48px;
 
-  /* Shadows (soft flat elevation only, no colored glows) */
-  --shadow-sm: 0 2px 8px rgba(7, 26, 61, 0.08);
-  --shadow-md: 0 8px 20px rgba(7, 26, 61, 0.10);
-  --shadow-lg: 0 12px 32px rgba(7, 26, 61, 0.14);
+  /* ---------- Shadows (soft flat elevation only, no colored glows) ---------- */
+  --shadow-sm: 0 2px 8px rgba(16, 21, 19, 0.08);
+  --shadow-md: 0 8px 20px rgba(16, 21, 19, 0.10);
+  --shadow-lg: 0 12px 32px rgba(16, 21, 19, 0.14);
 
-  /* Typography */
+  /* ---------- Typography ---------- */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --fs-xs: 12px;
   --fs-sm: 14px;
@@ -69,21 +77,21 @@
   --fs-2xl: 28px;
   --fs-3xl: 34px;
 
-  /* Layout */
+  /* ---------- Layout ---------- */
   --header-height: 64px;
   --bottom-nav-height: 78px;
   --max-content-width: 560px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  /* Motion: quick, snappy interactions */
+  /* ---------- Motion: quick, snappy interactions ---------- */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --duration-fast: 120ms;
   --duration-base: 180ms;
   --duration-slow: 260ms;
 
-  /* Z-index scale */
+  /* ---------- Z-index scale ---------- */
   --z-header: 100;
   --z-bottom-nav: 200;
   --z-fab: 250;

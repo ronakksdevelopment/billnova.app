@@ -1,11 +1,11 @@
 /* ==========================================================================
-   BillNova India: Cart / Billing Logic
+   Rasiddoo v1.0: Cart / Billing Logic
    Manages the in-memory cart, renders the list, computes live totals,
    and persists cart state to localStorage so it survives refreshes.
    ========================================================================== */
 
 const Cart = (() => {
-  const STORAGE_KEY = 'billnova_cart_state';
+  const STORAGE_KEY = 'rasiddoo_cart_state';
 
   /** @type {Array<{id:string, code:string|null, name:string, price:number, qty:number}>} */
   let items = [];
@@ -405,7 +405,7 @@ const Cart = (() => {
 
     try {
       const code = Label.generateProductCode();
-      const saved = await BillNovaDB.saveProduct({ code, name: item.name, price: item.price, photo: item.photo });
+      const saved = await RasiddooDB.saveProduct({ code, name: item.name, price: item.price, photo: item.photo });
       item.code = saved.code;
       render();
       persistToStorage();
@@ -474,7 +474,7 @@ const Cart = (() => {
       // code reflects the corrected name/price/photo.
       if (item.code) {
         try {
-          await BillNovaDB.saveProduct({ code: item.code, name, price, photo });
+          await RasiddooDB.saveProduct({ code: item.code, name, price, photo });
         } catch (err) {
           console.error('[Cart] Failed to update saved product', err);
           Toast.error('Item updated in this bill, but saving it to your product list failed.');

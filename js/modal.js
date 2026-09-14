@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Modal Manager
+   Rasiddoo v1.0: Modal Manager
    Generic open/close + a Promise-based confirm dialog helper
    ========================================================================== */
 

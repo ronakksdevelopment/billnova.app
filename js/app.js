@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: App Bootstrap
+   Rasiddoo v1.0: App Bootstrap
    Wires together: splash screen, onboarding, scanner -> DB lookup -> cart,
    manual add flow, and PWA install/service worker registration.
    ========================================================================== */
@@ -58,7 +58,7 @@
    */
   async function handleScannedCode(code) {
     try {
-      let existingProduct = await BillNovaDB.getProductByCode(code);
+      let existingProduct = await RasiddooDB.getProductByCode(code);
 
       // Backwards-compatible fallback: a barcode may have been saved
       // earlier under its raw UPC-A (12-digit) form, before scans were
@@ -66,12 +66,12 @@
       // normalized code isn't found, check the un-prefixed legacy form too
       // so an already-known product isn't mistaken for a brand new one.
       if (!existingProduct && /^0\d{12}$/.test(code)) {
-        existingProduct = await BillNovaDB.getProductByCode(code.slice(1));
+        existingProduct = await RasiddooDB.getProductByCode(code.slice(1));
         if (existingProduct) {
           // Migrate it to live under the normalized code too, so future
           // scans find it directly without needing this fallback.
           try {
-            await BillNovaDB.saveProduct({ ...existingProduct, code });
+            await RasiddooDB.saveProduct({ ...existingProduct, code });
           } catch (err) {
             console.error('[App] Failed to migrate legacy product code', err);
           }
@@ -135,7 +135,7 @@
       const photo = newProductPhotoPicker ? newProductPhotoPicker.getPhoto() : null;
 
       try {
-        const saved = await BillNovaDB.saveProduct({ code: pendingScannedCode, name, price, photo });
+        const saved = await RasiddooDB.saveProduct({ code: pendingScannedCode, name, price, photo });
         Cart.addItem({ code: saved.code, name: saved.name, price: saved.price, qty: 1, photo: saved.photo });
         ModalManager.close('new-product-modal');
         pendingScannedCode = null;
@@ -186,7 +186,7 @@
       if (wantsLabel && typeof Label !== 'undefined') {
         try {
           code = Label.generateProductCode();
-          await BillNovaDB.saveProduct({ code, name, price, photo });
+          await RasiddooDB.saveProduct({ code, name, price, photo });
         } catch (err) {
           console.error('[App] Failed to save generated product code', err);
           Toast.error('Item will be added, but its label could not be generated.');

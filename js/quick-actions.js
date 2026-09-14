@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Scan Button (tap-to-switch + long-press quick actions)
+   Rasiddoo v1.0: Scan Button (tap-to-switch + long-press quick actions)
    Owns 100% of the interaction on the center Scan button:
      - Short tap  -> Navigation.goToPage('home')   (normal nav behavior)
      - Hold 1s    -> opens the quick actions bottom sheet

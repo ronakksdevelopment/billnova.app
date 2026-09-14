@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: PWA Install Button Handling
+   Rasiddoo v1.0: PWA Install Button Handling
    Drives a single small download/install icon button in the header, shown
    only when the browser reports the app is installable.
    ========================================================================== */
@@ -20,7 +20,7 @@ const PwaInstall = (() => {
     window.addEventListener('appinstalled', () => {
       hideButton();
       deferredPrompt = null;
-      Toast.success('BillNova India installed successfully!');
+      Toast.success('Rasiddoo installed successfully!');
     });
 
     installBtn?.addEventListener('click', async () => {

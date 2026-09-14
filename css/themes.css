@@ -1,30 +1,32 @@
 /* ==========================================================================
-   BillNova India: Theme Variants
-   Applied via [data-theme] on <html>. "default" uses the base tokens as-is.
+   Rasiddoo v1.0: Theme Variants
+   Applied via [data-theme] on <html>. "light" is clean, bright, retail-
+   friendly. "dark" uses deep charcoal surfaces with emerald / bright green /
+   warm yellow accents — never a plain color inversion.
    ========================================================================== */
 
 [data-theme="light"] {
-  --color-soft-gray: #F3F4F6;
-  --text-primary: #0B1220;
-  --text-secondary: #4B5563;
+  --color-soft-gray: #EEF2EF;
+  --text-primary: var(--color-charcoal);
+  --text-secondary: #4B554E;
 }
 
 [data-theme="light"] body {
-  background: #F9FAFB;
+  background: var(--color-off-white);
 }
 
 [data-theme="dark"] {
-  --color-soft-gray: #1A2436;
-  --color-white: #101827;
-  --text-primary: #F3F4F6;
-  --text-secondary: #9CA3AF;
-  --text-muted: #6B7280;
-  --surface-card: rgba(16, 24, 39, 0.97);
+  --color-soft-gray: #1B2320;
+  --color-white: #171D1A;
+  --text-primary: #F3F6F4;
+  --text-secondary: #9AA6A0;
+  --text-muted: #828D85;
+  --surface-card: rgba(23, 29, 26, 0.97);
   --border-soft: rgba(255, 255, 255, 0.10);
 }
 
 [data-theme="dark"] body {
-  background: #0B1220;
+  background: var(--color-charcoal);
 }
 
 [data-theme="dark"] .field-input,
@@ -34,38 +36,38 @@
 [data-theme="dark"] .modal,
 [data-theme="dark"] .recent-item,
 [data-theme="dark"] .theme-swatch {
-  background: #101827;
-  color: #F3F4F6;
-  border-color: #2A3650;
+  background: #171D1A;
+  color: #F3F6F4;
+  border-color: #2B352F;
 }
 
 [data-theme="dark"] .custom-dropdown-option {
-  color: #9CA3AF;
+  color: #9AA6A0;
 }
 
 [data-theme="dark"] .custom-dropdown-option:hover {
-  background: #1A2436;
+  background: #1B2320;
 }
 
 [data-theme="dark"] .custom-dropdown-option.selected {
-  color: #F3F4F6;
+  color: #F3F6F4;
 }
 
 [data-theme="dark"] .field-label,
 [data-theme="dark"] .recent-item-invoice,
 [data-theme="dark"] .modal-title,
 [data-theme="dark"] .empty-state h3 {
-  color: #F3F4F6;
+  color: #F3F6F4;
 }
 
 [data-theme="dark"] .cart-item,
 [data-theme="dark"] .upi-details-card,
 [data-theme="dark"] .upi-qr-wrap {
-  background: #101827;
-  color: #F3F4F6;
+  background: #171D1A;
+  color: #F3F6F4;
 }
 
 [data-theme="dark"] .cart-item-name,
 [data-theme="dark"] .upi-detail-value {
-  color: #F3F4F6;
+  color: #F3F6F4;
 }

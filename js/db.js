@@ -1,10 +1,10 @@
 /* ==========================================================================
-   BillNova India: IndexedDB Layer
+   Rasiddoo v1.0: IndexedDB Layer
    Stores: products (scanned code -> name/price), bills (Part 1.0 placeholder)
    ========================================================================== */
 
-const BillNovaDB = (() => {
-  const DB_NAME = 'billnova_db';
+const RasiddooDB = (() => {
+  const DB_NAME = 'rasiddoo_db';
   const DB_VERSION = 1;
   const STORE_PRODUCTS = 'products';
   const STORE_BILLS = 'bills';
@@ -45,7 +45,7 @@ const BillNovaDB = (() => {
       };
 
       request.onerror = (event) => {
-        console.error('[BillNovaDB] Failed to open database', event.target.error);
+        console.error('[RasiddooDB] Failed to open database', event.target.error);
         reject(event.target.error);
       };
     });

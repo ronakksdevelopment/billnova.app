@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Bottom Navigation
+   Rasiddoo v1.0: Bottom Navigation
    Recent (left) | Center Scan button (default active screen) | Profile (right)
    Three items, equally spaced, center aligned.
    ========================================================================== */
@@ -14,7 +14,7 @@
   background: var(--surface-card);
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
-  box-shadow: 0 -4px 24px rgba(7, 26, 61, 0.12);
+  box-shadow: 0 -4px 24px rgba(16, 21, 19, 0.12);
   z-index: var(--z-bottom-nav);
   display: flex;
   justify-content: center;

@@ -1,12 +1,12 @@
 /* ==========================================================================
-   BillNova India: Scanner Interface
+   Rasiddoo v1.0: Scanner Interface
    ========================================================================== */
 
 .scanner-section {
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--color-navy);
+  background: var(--color-emerald);
   margin-bottom: var(--space-5);
   box-shadow: var(--shadow-lg);
 }
@@ -191,7 +191,7 @@
 .scan-success-flash {
   position: absolute;
   inset: 0;
-  background: rgba(34, 197, 94, 0.28);
+  background: rgba(24, 201, 100, 0.28);
   opacity: 0;
   pointer-events: none;
 }
@@ -255,7 +255,7 @@
 }
 
 .scanner-side-controls .icon-btn.off {
-  background: rgba(239, 68, 68, 0.85);
+  background: rgba(229, 72, 77, 0.85);
 }
 
 /* Scanner placeholder / permission state */
@@ -274,7 +274,7 @@
 
 .scanner-placeholder i {
   font-size: 44px;
-  color: var(--color-teal);
+  color: var(--color-bright-green);
   opacity: 0.85;
 }
 
@@ -296,14 +296,14 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--color-navy);
+  background: var(--color-emerald);
   color: var(--text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-lg);
   z-index: var(--z-fab);
-  border: 3px solid var(--color-teal);
+  border: 3px solid var(--color-bright-green);
   transition: transform var(--duration-fast) var(--ease-bounce);
 }
 

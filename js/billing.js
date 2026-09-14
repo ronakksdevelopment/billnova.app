@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Billing Flow
+   Rasiddoo v1.0: Billing Flow
    Confirm Bill -> Payment (Cash/UPI with QR) -> Success animation -> Actions
    ========================================================================== */
 
@@ -122,7 +122,7 @@ const Billing = (() => {
   function buildUpiLink() {
     const profile = Profile.get();
     const totals = Cart.computeTotals();
-    const payeeName = (pendingBillDraft?.shopName || profile.shopName || 'BillNova Merchant').trim();
+    const payeeName = (pendingBillDraft?.shopName || profile.shopName || 'Rasiddoo Merchant').trim();
     const upiId = (profile.upiId || '').trim();
     const amount = totals.grandTotal.toFixed(2);
     const note = `Invoice ${document.getElementById('cb-customer-name') ? '' : ''}Payment to ${payeeName}`;
@@ -166,7 +166,7 @@ const Billing = (() => {
       text: upiLink,
       width: 220,
       height: 220,
-      colorDark: '#071A3D',
+      colorDark: '#101513',
       colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.H, // high error correction so the center logo doesn't break scanning
     });
@@ -240,7 +240,7 @@ const Billing = (() => {
     const bill = buildBillRecord(paymentMethod);
 
     try {
-      await BillNovaDB.saveBill(bill);
+      await RasiddooDB.saveBill(bill);
     } catch (err) {
       console.error('[Billing] Failed to save bill', err);
       Toast.error('Could not save bill, please try again.');

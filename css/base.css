@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Base Reset & Global Styles
+   Rasiddoo v1.0: Base Reset & Global Styles
    ========================================================================== */
 
 *,
@@ -82,7 +82,7 @@ button.icon-btn-sm, .tap-sm {
   height: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(7, 26, 61, 0.2);
+  background: rgba(16, 21, 19, 0.2);
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-track {
@@ -91,7 +91,7 @@ button.icon-btn-sm, .tap-sm {
 
 /* Focus visibility for accessibility */
 :focus-visible {
-  outline: 3px solid var(--color-teal);
+  outline: 3px solid var(--color-bright-green);
   outline-offset: 2px;
   border-radius: var(--radius-xs);
 }

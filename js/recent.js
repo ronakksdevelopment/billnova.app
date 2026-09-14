@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Recent Bills
+   Rasiddoo v1.0: Recent Bills
    Lists saved invoices with search + date filter, and lets the user reopen
    (view actions), duplicate into a new cart, or delete a bill.
    ========================================================================== */
@@ -93,7 +93,7 @@ const Recent = (() => {
 
   async function refresh() {
     try {
-      allBills = await BillNovaDB.getAllBills();
+      allBills = await RasiddooDB.getAllBills();
     } catch (err) {
       console.error('[Recent] Failed to load bills', err);
       allBills = [];
@@ -244,7 +244,7 @@ const Recent = (() => {
     if (!confirmed) return;
 
     try {
-      await BillNovaDB.deleteBill(id);
+      await RasiddooDB.deleteBill(id);
       Toast.info('Bill deleted');
       await refresh();
     } catch (err) {

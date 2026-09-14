@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: First-Run Permissions Screen
+   Rasiddoo v1.0: First-Run Permissions Screen
    Custom UI over the browser's native permission prompts. Camera access is
    requested via getUserMedia (immediately released after grant, since the
    Scanner module opens its own stream when the Billing screen loads).
@@ -8,7 +8,7 @@
    ========================================================================== */
 
 const Permissions = (() => {
-  const STORAGE_KEY = 'billnova_permissions_seen';
+  const STORAGE_KEY = 'rasiddoo_permissions_seen';
 
   let overlayEl = null;
   let continueBtn = null;

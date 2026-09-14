@@ -1,11 +1,11 @@
 /* ==========================================================================
-   BillNova India: Profile / Business Settings
+   Rasiddoo v1.0: Profile / Business Settings
    Stores default shop info, UPI ID, GST%, receipt footer, currency & theme
    locally. Used to pre-fill Confirm Bill, Payment and Receipt screens.
    ========================================================================== */
 
 const Profile = (() => {
-  const STORAGE_KEY = 'billnova_profile';
+  const STORAGE_KEY = 'rasiddoo_profile';
 
   const DEFAULTS = {
     shopName: '',
@@ -122,14 +122,14 @@ const Profile = (() => {
 
   async function handleExportData() {
     try {
-      const bills = await BillNovaDB.getAllBills();
-      const products = await BillNovaDB.getAllProducts();
+      const bills = await RasiddooDB.getAllBills();
+      const products = await RasiddooDB.getAllProducts();
       const payload = { profile: data, bills, products, exportedAt: new Date().toISOString() };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `billnova-backup-${Date.now()}.json`;
+      a.download = `rasiddoo-backup-${Date.now()}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -150,7 +150,7 @@ const Profile = (() => {
     if (!confirmed) return;
 
     try {
-      const db = await BillNovaDB.openDB();
+      const db = await RasiddooDB.openDB();
       await Promise.all([
         new Promise((resolve, reject) => {
           const tx = db.transaction('bills', 'readwrite');

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Product Photo Picker
+   Rasiddoo v1.0: Product Photo Picker
    Custom-styled photo upload control used in the New Product, Add Product
    and Edit Item modals (no native file-input chrome shown to the user).
    ========================================================================== */
@@ -15,8 +15,8 @@
   height: 72px;
   flex-shrink: 0;
   border-radius: var(--radius-md);
-  background: rgba(34, 197, 94, 0.10);
-  border: 2px dashed rgba(7, 26, 61, 0.18);
+  background: rgba(24, 201, 100, 0.10);
+  border: 2px dashed rgba(16, 21, 19, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,7 +66,7 @@
   padding: 8px 14px;
   border-radius: var(--radius-full);
   border: none;
-  background: rgba(34, 197, 94, 0.12);
+  background: rgba(24, 201, 100, 0.12);
   color: var(--color-emerald-dark);
   font-size: var(--fs-sm);
   font-weight: 600;
@@ -75,7 +75,7 @@
 }
 
 .photo-picker-btn:hover {
-  background: rgba(34, 197, 94, 0.20);
+  background: rgba(24, 201, 100, 0.20);
 }
 
 .photo-picker-btn:active {
@@ -89,7 +89,7 @@
   padding: 4px 6px;
   border: none;
   background: none;
-  color: var(--color-danger);
+  color: var(--color-danger-dark);
   font-size: var(--fs-xs);
   font-weight: 600;
   cursor: pointer;
@@ -118,6 +118,6 @@
 }
 
 [data-theme="dark"] .photo-picker-preview.has-photo {
-  background: #101827;
-  border-color: #2A3650;
+  background: var(--color-charcoal-soft);
+  border-color: #2B352F;
 }

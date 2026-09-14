@@ -1,11 +1,11 @@
 /* ==========================================================================
-   BillNova India — Service Worker
+   Rasiddoo v1.0 — Service Worker
    Offline-first: pre-caches the app shell + third-party libraries, then
    serves everything from cache, falling back to network for anything new.
    ========================================================================== */
 
-const CACHE_VERSION = 'billnova-v1.2.0';
-const CACHE_NAME = `billnova-cache-${CACHE_VERSION}`;
+const CACHE_VERSION = 'rasiddoo-v1.0.0';
+const CACHE_NAME = `rasiddoo-cache-${CACHE_VERSION}`;
 
 // App shell: everything needed for the app to boot and run fully offline.
 const APP_SHELL = [
@@ -54,7 +54,8 @@ const APP_SHELL = [
   './assets/icons/icon-128.png',
   './assets/icons/icon-144.png',
   './assets/icons/icon-152.png',
-  './assets/icons/icon-180.png',
+  './assets/icons/favicon.ico',
+  './assets/icons/logo-source.png',
   './assets/icons/icon-192.png',
   './assets/icons/icon-384.png',
   './assets/icons/icon-512.png',
@@ -101,7 +102,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key.startsWith('billnova-cache-') && key !== CACHE_NAME)
+          .filter((key) => (key.startsWith('rasiddoo-cache-') || key.startsWith('billnova-cache-')) && key !== CACHE_NAME)
           .map((key) => caches.delete(key))
       )
     ).then(() => self.clients.claim())

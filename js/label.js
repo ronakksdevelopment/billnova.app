@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Product Label Generator
+   Rasiddoo v1.0: Product Label Generator
    For products that don't already have a printed/scannable code (manually
    added items, or an existing item you just want a fresh sticker for), this
    module generates a unique internal product code and renders it as a
@@ -10,7 +10,7 @@
    ========================================================================== */
 
 const Label = (() => {
-  const CODE_SEQ_KEY = 'billnova_label_seq';
+  const CODE_SEQ_KEY = 'rasiddoo_label_seq';
 
   let currentProduct = null; // { code, name, price, photo }
   let currentMode = 'qr'; // 'qr' | 'barcode'
@@ -116,7 +116,7 @@ const Label = (() => {
         text: currentProduct.code,
         width: 200,
         height: 200,
-        colorDark: '#071A3D',
+        colorDark: '#101513',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.M,
       });
@@ -126,7 +126,7 @@ const Label = (() => {
       try {
         JsBarcode(canvas, currentProduct.code, {
           format: 'CODE128',
-          lineColor: '#071A3D',
+          lineColor: '#101513',
           width: 2.4,
           height: 90,
           displayValue: true,

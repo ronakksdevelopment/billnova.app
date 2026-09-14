@@ -1,12 +1,12 @@
 /* ==========================================================================
-   BillNova India: Layout: Splash, Header, Onboarding, PWA Banner
+   Rasiddoo v1.0: Layout: Splash, Header, Onboarding, PWA Banner
    ========================================================================== */
 
 /* ---------- Splash Screen ---------- */
 .splash-screen {
   position: fixed;
   inset: 0;
-  background: var(--color-navy);
+  background: var(--color-emerald);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -25,7 +25,7 @@
   width: 140px;
   height: 140px;
   border-radius: var(--radius-xl);
-  background: var(--color-navy-light);
+  background: var(--color-emerald-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,7 +53,7 @@
 }
 
 .splash-title span {
-  color: var(--color-emerald);
+  color: var(--color-bright-green);
 }
 
 .splash-subtitle {
@@ -79,11 +79,11 @@
   right: 0;
   height: calc(var(--header-height) + var(--safe-top));
   padding-top: var(--safe-top);
-  background: var(--color-navy);
+  background: var(--color-emerald);
   z-index: var(--z-header);
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 12px rgba(7, 26, 61, 0.2);
+  box-shadow: 0 2px 12px rgba(16, 21, 19, 0.2);
 }
 
 .app-header-inner {
@@ -167,7 +167,7 @@
 .onboarding-overlay {
   position: fixed;
   inset: 0;
-  background: var(--color-navy);
+  background: var(--color-emerald);
   z-index: 450;
   display: flex;
   flex-direction: column;

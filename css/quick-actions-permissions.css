@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Permissions Overlay + Scan Quick Actions
+   Rasiddoo v1.0: Permissions Overlay + Scan Quick Actions
    ========================================================================== */
 
 /* ---------- Permissions overlay (first run) ---------- */
@@ -8,7 +8,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-splash);
-  background: rgba(7, 26, 61, 0.55);
+  background: rgba(16, 21, 19, 0.55);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -110,7 +110,7 @@
 
 .permission-row-icon i {
   font-size: 16px;
-  color: var(--color-teal-dark);
+  color: var(--color-bright-green-dark);
 }
 
 .permission-row-text {
@@ -142,7 +142,7 @@
   height: 34px;
   padding: 0 var(--space-3);
   border-radius: var(--radius-full);
-  background: var(--color-navy);
+  background: var(--color-emerald);
   color: var(--text-inverse);
   font-size: 12px;
   font-weight: 700;
@@ -184,7 +184,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-modal-backdrop);
-  background: rgba(7, 26, 61, 0.45);
+  background: rgba(16, 21, 19, 0.45);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -274,21 +274,21 @@
 
 .quick-action-item[data-quick-action="clear-cart"] .quick-action-icon i,
 .quick-action-item[data-quick-action="clear-cart"] .quick-action-title {
-  color: #dc2626;
+  color: var(--color-danger-dark);
 }
 
 /* "Re-enable Camera Access" only appears once permission has actually been
    revoked, so it gets a warning treatment to stand out from the routine actions. */
 .quick-action-icon--warn {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(229, 72, 77, 0.12);
 }
 
 .quick-action-icon--warn i {
-  color: #dc2626;
+  color: var(--color-danger-dark);
 }
 
 .quick-action-item[data-quick-action="reenable-camera"] .quick-action-title {
-  color: #dc2626;
+  color: var(--color-danger-dark);
 }
 
 /* Flashlight action is a no-op while the camera is off; dim it so that's clear. */
@@ -300,5 +300,5 @@
 /* Visual feedback while the scan button is being held, before the sheet opens */
 .nav-scan-btn.holding {
   transform: translateY(-22px) scale(0.94);
-  box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.18), var(--shadow-lg);
+  box-shadow: 0 0 0 8px rgba(24, 201, 100, 0.18), var(--shadow-lg);
 }

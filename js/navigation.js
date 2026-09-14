@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BillNova India: Navigation
+   Rasiddoo v1.0: Navigation
    Handles bottom nav tab switching: Recent | Scan (Billing, default) | Profile
    Keeps the live scanner active while on the Billing screen, and pauses it
    the moment the user leaves so the camera never runs in the background.
@@ -63,7 +63,7 @@ const Navigation = (() => {
     }
 
     const titleEl = document.getElementById('header-page-title');
-    if (titleEl) titleEl.textContent = pageTitles[pageName] || 'BillNova';
+    if (titleEl) titleEl.textContent = pageTitles[pageName] || 'Rasiddoo';
 
     window.scrollTo({ top: 0, behavior: 'instant' });
 
